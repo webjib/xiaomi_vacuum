@@ -350,6 +350,11 @@ class DreameVacuum(MiotDevice):
         """Stop cleaning."""
         return self.call_action(4, 2)
 
+    @command(click.argument("coords", type=str))
+    def zone_cleanup(self, coords) -> None:
+        """Start zone cleaning."""
+        payload = [{"piid": 1, "value": 19},{"piid": 10, "value": coords}]
+        return self.call_action(4, 1, payload)   
     # # siid 21: (remote): 2 props, 3 actions
     # # aiid 1 start-remote: in: [1, 2] -> out: []
     # @command()
