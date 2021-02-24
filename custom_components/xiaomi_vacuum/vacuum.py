@@ -55,6 +55,7 @@ ATTR_FILTER_LEFT_TIME = "filter_left_time"
 ATTR_CLEANING_TOTAL_TIME = "total_cleaning_count"
 ATTR_ZONE_ARRAY = "zone"
 ATTR_ZONE_REPEATER = "repeats"
+ATTR_WATERBOX_STATUS = "waterbox"
 
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
 
@@ -83,6 +84,11 @@ SPEED_CODE_TO_NAME = {
     1: "Standard",
     2: "Strong",
     3: "Turbo",
+}
+
+WATERBOX_CODE_TO_NAME = {
+    0: "Removed",
+    1: "Present",
 }
 
 ERROR_CODE_TO_ERROR = {
@@ -164,7 +170,7 @@ class MiroboVacuum(StateVacuumEntity):
         self.vacuum_state = None
         self.vacuum_error = None
         self.battery_percentage = None
-        
+
         self._current_fan_speed = None
 
         self._main_brush_time_left = None
@@ -178,9 +184,11 @@ class MiroboVacuum(StateVacuumEntity):
 
         self._total_clean_count = None
         self._cleaning_area = None
-        self._cleaning_time = None		
+        self._cleaning_time = None
 
-        
+        self._waterbox_status = None
+
+
 
     @property
     def name(self):
@@ -242,6 +250,7 @@ class MiroboVacuum(StateVacuumEntity):
         if self.vacuum_state is not None:
             return {
                 ATTR_STATUS: STATE_CODE_TO_STATE[int(self.vacuum_state)],
+				ATTR_WATERBOX_STATUS: WATERBOX_CODE_TO_NAME.get(self._waterbox_status, "Unknown"),
                 ATTR_ERROR:  ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
 				ATTR_FAN_SPEED: SPEED_CODE_TO_NAME.get(self._current_fan_speed, "Unknown"),
                 ATTR_MAIN_BRUSH_LEFT_TIME: self._main_brush_time_left,
@@ -251,9 +260,9 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_FILTER_LIFE_LEVEL: self._filter_life_level,
                 ATTR_FILTER_LEFT_TIME: self._filter_left_time,
                 ATTR_CLEANING_AREA: self._cleaning_area,
-                ATTR_CLEANING_TIME: self._cleaning_time,				
+                ATTR_CLEANING_TIME: self._cleaning_time,
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_count,
-            } 
+            }
 
 
     @property
@@ -270,7 +279,7 @@ class MiroboVacuum(StateVacuumEntity):
             _LOGGER.error(mask_error, exc)
             return False
 
-    
+
     async def async_locate(self, **kwargs):
         """Locate the vacuum cleaner."""
         await self._try_command("Unable to locate the botvac: %s", self._vacuum.find)
@@ -314,7 +323,7 @@ class MiroboVacuum(StateVacuumEntity):
                 )
                 return
         await self._try_command(
-            "Unable to set fan speed: %s", self._vacuum.set_fan_speed, fan_speed)    
+            "Unable to set fan speed: %s", self._vacuum.set_fan_speed, fan_speed)
 
     def update(self):
         """Fetch state from the device."""
@@ -340,9 +349,11 @@ class MiroboVacuum(StateVacuumEntity):
 
             self._filter_life_level = state.filter_life_level
             self._filter_left_time = state.filter_left_time
-			
+
             self._cleaning_area = state.area
             self._cleaning_time = state.timer
+
+            self._waterbox_status = state.waterbox_status
 
         except OSError as exc:
             _LOGGER.error("Got OSError while fetching the state: %s", exc) 
