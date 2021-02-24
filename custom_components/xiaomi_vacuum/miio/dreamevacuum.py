@@ -374,6 +374,19 @@ class DreameVacuum(MiotDevice):
         return self.call_action(4, 1, payload)
         # # siid 21: (remote): 2 props, 3 actions
 
+    @command(click.argument("coords", type=str))
+    def room_cleanup(self, coords) -> None:
+        """Start room cleaning."""
+        payload = [{"piid": 1, "value": 18}, {"piid": 10, "value": coords}]
+        return self.call_action(4, 1, payload)
+
+    @command(click.argument("coords", type=str))
+    def restricted_zone(self, coords) -> None:
+        """Create restricted/mop zone """
+        payload = [{"piid": 4, "value": coords}]
+        return self.call_action(6, 2, payload)
+
+    # # siid 21: (remote): 2 props, 3 actions
     # # aiid 1 start-remote: in: [1, 2] -> out: []
     # @command()
     # def start_remote(self, _) -> None:

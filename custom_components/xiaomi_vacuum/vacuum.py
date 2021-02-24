@@ -58,6 +58,8 @@ ATTR_ZONE_REPEATER = "repeats"
 ATTR_WATERBOX_STATUS = "waterbox"
 
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
+SERVICE_CLEAN_ROOM = "vacuum_clean_room"
+SERVICE_RESTRICTED_ZONE = "vacuum_restricted_zone"
 
 SUPPORT_XIAOMI = (
     SUPPORT_STATE
@@ -153,6 +155,27 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             ),
         },
         MiroboVacuum.async_clean_zone.__name__,
+    )
+    
+    platform.async_register_entity_service(
+        SERVICE_CLEAN_ROOM,
+        {
+            vol.Required(ATTR_ZONE_ARRAY): cv.string,
+            vol.Required(ATTR_ZONE_REPEATER): vol.All(
+                vol.Coerce(int), vol.Clamp(min=1, max=3)
+            ),
+        },
+        MiroboVacuum.async_clean_room.__name__,
+    )
+    platform.async_register_entity_service(
+        SERVICE_RESTRICTED_ZONE,
+        {
+            vol.Required(ATTR_ZONE_ARRAY): cv.string,
+            vol.Required(ATTR_ZONE_REPEATER): vol.All(
+                vol.Coerce(int), vol.Clamp(min=1, max=3)
+            ),
+        },
+        MiroboVacuum.async_restricted_zone.__name__,
     )
 
 
@@ -287,7 +310,7 @@ class MiroboVacuum(StateVacuumEntity):
     async def async_start(self):
         """Start or resume the cleaning task."""
         await self._try_command(
-            "Unable to start the vacuum: %s", self._vacuum.start)
+            "Unable to start the vacuum: %s", self._vacuum.start_sweep)
 
     async def async_stop(self, **kwargs):
         """Stop the vacuum cleaner."""
@@ -300,9 +323,23 @@ class MiroboVacuum(StateVacuumEntity):
         except (OSError, DeviceException) as exc:
             _LOGGER.error("Unable to send zoned_clean command to the vacuum: %s", exc)
 
+    async def async_clean_room(self, zone, repeats=1):
+        """Clean selected room."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.room_cleanup, zone)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send room_clean command to the vacuum: %s", exc)
+
+    async def async_restricted_zone(self, zone, repeats=1):
+        """Create restricted zone."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.restricted_zone, zone)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send restricted_zone command to the vacuum: %s", exc)
+
     async def async_pause(self):
         """Pause the cleaning task."""
-        await self._try_command("Unable to set start/pause: %s", self._vacuum.stop)
+        await self._try_command("Unable to set start/pause: %s", self._vacuum.stop_sweeping)
 
     async def async_return_to_base(self, **kwargs):
         """Set the vacuum cleaner to return to the dock."""
