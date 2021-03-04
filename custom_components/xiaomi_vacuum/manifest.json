@@ -3,5 +3,6 @@
   "name": "Xiaomi Vacuum",
   "documentation": "",
   "requirements": [],
-  "codeowners": ["@concentricc"]
+  "codeowners": ["@microfrost1"],
+  "version": "0.2"
 }
