@@ -6,6 +6,8 @@ import click
 from .click_common import command
 from .miot_device import MiotDevice
 
+from random import randint
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -386,24 +388,16 @@ class DreameVacuum(MiotDevice):
         payload = [{"piid": 4, "value": coords}]
         return self.call_action(6, 2, payload)
 
-    # # siid 21: (remote): 2 props, 3 actions
-    # # aiid 1 start-remote: in: [1, 2] -> out: []
-    # @command()
-    # def start_remote(self, _) -> None:
-    # """aiid 1 start-remote: in: [1, 2] -> out: []"""
-    # return self.call_action(21, 1)
-
-    # # aiid 2 stop-remote: in: [] -> out: []
-    # @command()
-    # def stop_remote(self) -> None:
-    # """aiid 2 stop-remote: in: [] -> out: []"""
-    # return self.call_action(21, 2)
-
-    # # aiid 3 exit-remote: in: [] -> out: []
-    # @command()
-    # def exit_remote(self) -> None:
-    # """aiid 3 exit-remote: in: [] -> out: []"""
-    # return self.call_action(21, 3)
+    @command()
+    def manual_control_once(self, rotation, velocity, duration) -> None:
+        payload = [{
+            "did": f"call-{siid}-{piid}",
+            "siid": 4,
+            "piid": 15,
+            "value": "{\"spdv\": " + str(velocity) + ",\"spdw\": " + str(
+                rotation) + ",\"audio\":\"false\",\"random\": " + str(randint(1000, 9999)) + "}"
+        }]
+        return self.send("set_properties", payload)
 
     # siid 6: (map): 6 props, 2 actions
     # aiid 1 map-req: in: [2] -> out: []

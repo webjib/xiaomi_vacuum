@@ -56,10 +56,14 @@ ATTR_CLEANING_TOTAL_TIME = "total_cleaning_count"
 ATTR_ZONE_ARRAY = "zone"
 ATTR_ZONE_REPEATER = "repeats"
 ATTR_WATERBOX_STATUS = "waterbox"
+ATTR_RC_DURATION = "duration"
+ATTR_RC_ROTATION = "rotation"
+ATTR_RC_VELOCITY = "velocity"
 
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
 SERVICE_CLEAN_ROOM = "vacuum_clean_room"
 SERVICE_RESTRICTED_ZONE = "vacuum_restricted_zone"
+SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
 
 SUPPORT_XIAOMI = (
     SUPPORT_STATE
@@ -156,7 +160,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         },
         MiroboVacuum.async_clean_zone.__name__,
     )
-    
+
     platform.async_register_entity_service(
         SERVICE_CLEAN_ROOM,
         {
@@ -176,6 +180,19 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             ),
         },
         MiroboVacuum.async_restricted_zone.__name__,
+    )
+    platform.async_register_entity_service(
+        SERVICE_MOVE_REMOTE_CONTROL_STEP,
+        {
+            vol.Optional(ATTR_RC_VELOCITY): vol.All(
+                vol.Coerce(int), vol.Clamp(min=-300, max=300)
+            ),
+            vol.Optional(ATTR_RC_ROTATION): vol.All(
+                vol.Coerce(int), vol.Clamp(min=-179, max=179)
+            ),
+            vol.Optional(ATTR_RC_DURATION): cv.positive_int,
+        },
+        MiroboVacuum.async_remote_control_move_step.__name__,
     )
 
 
@@ -336,6 +353,13 @@ class MiroboVacuum(StateVacuumEntity):
             await self.hass.async_add_executor_job(self._vacuum.restricted_zone, zone)
         except (OSError, DeviceException) as exc:
             _LOGGER.error("Unable to send restricted_zone command to the vacuum: %s", exc)
+
+    async def async_remote_control_move_step(self, rotation: int = 0, velocity: int = 0, duration: int = 1500):
+        """Create restricted zone."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.manual_control_once, rotation, velocity, duration)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send remote control step command to the vacuum: %s", exc)
 
     async def async_pause(self):
         """Pause the cleaning task."""
