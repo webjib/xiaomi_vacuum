@@ -389,13 +389,12 @@ class DreameVacuum(MiotDevice):
         return self.call_action(6, 2, payload)
 
     @command()
-    def manual_control_once(self, rotation, velocity, duration) -> None:
+    def manual_control_once(self, rotation, velocity) -> None:
         payload = [{
             "did": f"call-{siid}-{piid}",
             "siid": 4,
             "piid": 15,
-            "value": "{\"spdv\": " + str(velocity) + ",\"spdw\": " + str(
-                rotation) + ",\"audio\":\"false\",\"random\": " + str(randint(1000, 9999)) + "}"
+            "value": "{\"spdv\": " + str(velocity) + ",\"spdw\": " + str(rotation) + ",\"audio\":\"false\",\"random\": " + str(randint(1000, 9999)) + "}"
         }]
         return self.send("set_properties", payload)
 

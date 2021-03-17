@@ -190,7 +190,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             vol.Optional(ATTR_RC_ROTATION): vol.All(
                 vol.Coerce(int), vol.Clamp(min=-179, max=179)
             ),
-            vol.Optional(ATTR_RC_DURATION): cv.positive_int,
         },
         MiroboVacuum.async_remote_control_move_step.__name__,
     )
@@ -357,7 +356,7 @@ class MiroboVacuum(StateVacuumEntity):
     async def async_remote_control_move_step(self, rotation: int = 0, velocity: int = 0, duration: int = 1500):
         """Create restricted zone."""
         try:
-            await self.hass.async_add_executor_job(self._vacuum.manual_control_once, rotation, velocity, duration)
+            await self.hass.async_add_executor_job(self._vacuum.manual_control_once, rotation, velocity)
         except (OSError, DeviceException) as exc:
             _LOGGER.error("Unable to send remote control step command to the vacuum: %s", exc)
 
