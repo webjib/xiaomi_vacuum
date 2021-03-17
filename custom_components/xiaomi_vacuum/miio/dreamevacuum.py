@@ -390,6 +390,8 @@ class DreameVacuum(MiotDevice):
 
     @command()
     def manual_control_once(self, rotation, velocity) -> None:
+        siid = 4
+        piid = 15
         payload = [{
             "did": f"call-{siid}-{piid}",
             "siid": 4,
