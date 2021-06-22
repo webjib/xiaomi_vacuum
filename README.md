@@ -1,5 +1,5 @@
 # xiaomi_vacuum
-custom component for Vacuum f9 (dreame.vacuum.p2008).
+custom component for Vacuum d9 (dreame.vacuum.p2009).
 Rough around the edges, not all the commands work, not all attributes set up.
 Needs a clean up.
 
@@ -9,7 +9,7 @@ Using https://github.com/rytilahti/python-miio for the protocol.
 
 Two possibilities for installation :
 - Manually : add the "xiaomi_vacuum" folder to the /config/custom_components folder ; reboot
-- With HACS : go in HACS, click on Integrations, click on the three little dots at top of the screen and selection "custom repositories", add this github url, select "Integration" as repository, and click ADD. Then go to the Integrations tab of HACS, and install the "Xiaomi 1C STYTJ01ZHM" integration.
+- With HACS : go in HACS, click on Integrations, click on the three little dots at top of the screen and selection "custom repositories", add this github url, select "Integration" as repository, and click ADD. Then go to the Integrations tab of HACS, and install the "Dreame Vacuum Robot D9" integration.
 
 Code to add to configuration.yaml :
 ```

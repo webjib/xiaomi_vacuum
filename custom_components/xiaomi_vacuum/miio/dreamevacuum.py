@@ -422,7 +422,7 @@ class DreameVacuum(MiotDevice):
             "did": "<myID>",
             "siid": 7,
             "piid": 4,
-            "value": "{\"id\":\"FR\",\"url\":\"http://192.168.1.6:8123/local/dreame.vacuum.p2008_en.tar.gz\",\"md5\":\"d2287d7d125748bace8d0778b7df119c\",\"size\":1156119}"
+            "value": "{\"id\":\"EN\",\"url\":\"http://192.168.1.6:8123/local/dreame.vacuum.p2009_en.tar.gz\",\"md5\":\"d2287d7d125748bace8d0778b7df119c\",\"size\":1156119}"
         }]
         return self.send("set_properties", payload)
 
