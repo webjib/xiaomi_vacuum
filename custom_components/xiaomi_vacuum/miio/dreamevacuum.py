@@ -129,6 +129,7 @@ class DreameStatus:
         },
         default=None
     )
+
     # piid: 1 (Status): (int8, unit: None) (acc: ['read', 'notify'], value-list: [{'value': 1, 'description': 'Sweeping'}, {'value': 2, 'description': 'Idle'}, {'value': 3, 'description': 'Paused'}, {'value': 4, 'description': 'Error'}, {'value': 5, 'description': 'Go Charging'}, {'value': 6, 'description': 'Charging'}], value-range: None)
     status: int = field(
         metadata={
@@ -148,8 +149,9 @@ class DreameStatus:
             "piid": 1,
             "access": ["read", "notify"]
         },
-        default=None)
-        
+        default=None
+    )
+
     # piid: 2 (Charging State): (uint8, unit: None) (acc: ['read', 'notify'], value-list: [{'value': 1, 'description': 'Charging'}, {'value': 2, 'description': 'Not Charging'}, {'value': 5, 'description': 'Go Charging'}], value-range: None)
     state: int = field(
         metadata={
@@ -163,30 +165,36 @@ class DreameStatus:
 
     # siid 4: (Sweeper extended function protocol): 15 props, 2 actions
     # piid: 1 (work-mode): (int32, unit: none) (acc: ['read', 'notify'], value-list: [], value-range: [0, 50, 1])
-    operating_mode: int = field(
-        metadata={"siid": 4,
+    work_mode: int = field(
+        metadata={
+            "siid": 4,
             "piid": 1,
+            "access": ["read", "notify"],
+            "enum": WorkMode,
+        },
+        default=None
+    )
+
+    # piid: 2 (timer): (string, unit: minute) (acc: ['read', 'notify'], value-list: [], value-range: [0, 32767, 1])
+    timer: str = field(
+        metadata={
+            "siid": 4,
+            "piid": 2,
             "access": ["read", "notify"]
         },
         default=None
     )
-    
-    # piid: 2 (timer): (string, unit: minute) (acc: ['read', 'notify'], value-list: [], value-range: [0, 32767, 1])
-    timer: str = field(
-        metadata={"siid": 4,
-        "piid": 2,
-        "access": ["read", "notify"]
-        },
-        default=None)
-    
+
     # piid: 3 (area): (string, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 32767, 1])
     area: str = field(
-        metadata={"siid": 4,
-        "piid": 3,
-        "access": ["read", "notify"]
+        metadata={
+            "siid": 4,
+            "piid": 3,
+            "access": ["read", "notify"]
         },
-        default=None)
-    
+        default=None
+    )
+
     # piid: 4 (Cleaning-mode): (int8, unit: none) (acc: ['read', 'notify', 'write'], value-list: [{'value': 0, 'description': 'Quiet'}, {'value': 1, 'description': 'Standard'}, {'value': 2, 'description': 'Strong'}, {'value': 3, 'description': 'Turbo'}])
     fan_speed: int = field(
         metadata={
@@ -220,6 +228,16 @@ class DreameStatus:
         default=None
     )
 
+    # piid: 7 (task-status): (int8, unit: none)  (acc: ['read', 'notify'])
+    task_status: int = field(
+        metadata={
+            "siid": 4,
+            "piid": 7,
+            "access": ["read", "notify"],
+            "enum": taskStatus,
+        },
+        default=None
+    )
 
     # siid 5: (do-not-disturb): 3 props, 0 actions
     # piid: 1 (enable): (bool, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
@@ -231,7 +249,7 @@ class DreameStatus:
         },
         default=None
     )
-    
+
     # piid: 2 (start-time): (string, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
     dnd_start_time: str = field(
         metadata={
@@ -241,7 +259,7 @@ class DreameStatus:
         },
         default=None
     )
-    
+
     # piid: 3 (stop-time): (string, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
     dnd_stop_time: str = field(
         metadata={
@@ -303,6 +321,16 @@ class DreameStatus:
             "piid": 1,
             "access": ["read", "notify"]
         },
+        default=None
+    )
+
+    # piid: 2 (timer-clean)
+    schedule: str = field( 
+        metadata={
+            "siid": 8, 
+            "piid": 2, 
+            "access": ["read", "notify"],
+        }, 
         default=None
     )
 
