@@ -14,6 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 class ChargeStatus(Enum):
     Charging = 1
     Not_charging = 2
+    Charging2 = 4
     Go_charging = 5
 
 
@@ -56,6 +57,7 @@ class VacuumStatus(Enum):
     Error = 4
     Go_charging = 5
     Charging = 6
+    Mopping = 7
 
 
 class VacuumSpeed(Enum):
@@ -73,29 +75,25 @@ class Waterbox(Enum):
     Removed = 0
     Present = 1
 
+class WaterLevel(Enum):
+    Low = 1
+    Medium = 2
+    High = 3
+
 
 @dataclass
 class DreameStatus:
     _max_properties = 14
 
-    # siid 3: (Battery): 2 props, 1 actions
-    # piid: 1 (Battery Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
-    battery: int = field(metadata={"siid": 3, "piid": 1, "access": ["read", "notify"]}, default=None)
-    # piid: 2 (Charging State): (uint8, unit: None) (acc: ['read', 'notify'], value-list: [{'value': 1, 'description': 'Charging'}, {'value': 2, 'description': 'Not Charging'}, {'value': 5, 'description': 'Go Charging'}], value-range: None)
-    state: int = field(
-        metadata={
-            "siid": 3,
-            "piid": 2,
-            "access": ["read", "notify"],
-            "enum": ChargeStatus,
-        },
-        default=None
-    )
-
     # siid 2: (Robot Cleaner): 2 props, 2 actions
     # piid: 2 (Device Fault): (uint8, unit: None) (acc: ['read', 'notify'], value-list: [{'value': 0, 'description': 'No faults'}], value-range: None)
     error: int = field(
-        metadata={"siid": 2, "piid": 2, "access": ["read", "notify"], "enum": Error},
+        metadata={
+            "siid": 2,
+            "piid": 2,
+            "access": ["read", "notify"],
+            "enum": Error
+        },
         default=None
     )
     # piid: 1 (Status): (int8, unit: None) (acc: ['read', 'notify'], value-list: [{'value': 1, 'description': 'Sweeping'}, {'value': 2, 'description': 'Idle'}, {'value': 3, 'description': 'Paused'}, {'value': 4, 'description': 'Error'}, {'value': 5, 'description': 'Go Charging'}, {'value': 6, 'description': 'Charging'}], value-range: None)
@@ -109,53 +107,54 @@ class DreameStatus:
         default=None
     )
 
-    # siid 9: (Main Cleaning Brush): 2 props, 1 actions
-    # piid: 1 (Brush Left Time): (uint16, unit: hour) (acc: ['read', 'notify'], value-list: [], value-range: [0, 300, 1])
-    brush_left_time: int = field(
-        metadata={"siid": 9, "piid": 1, "access": ["read", "notify"]},
-        default=None
-    )
-    # piid: 2 (Brush Life Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
-    brush_life_level: int = field(
-        metadata={"siid": 9, "piid": 2, "access": ["read", "notify"]},
-        default=None
-    )
-
-    # siid 11: (Filter): 2 props, 1 actions
-    # piid: 1 (Filter Life Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
-    filter_life_level: int = field(
-        metadata={"siid": 11, "piid": 1, "access": ["read", "notify"]},
-        default=None
-    )
-    # piid: 2 (Filter Left Time): (uint16, unit: hour) (acc: ['read', 'notify'], value-list: [], value-range: [0, 150, 1])
-    filter_left_time: int = field(
-        metadata={"siid": 11, "piid": 2, "access": ["read", "notify"]},
+    # siid 3: (Battery): 2 props, 1 actions
+    # piid: 1 (Battery Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
+    battery: int = field(
+        metadata={
+            "siid": 3,
+            "piid": 1,
+            "access": ["read", "notify"]
+        },
+        default=None)
+        
+    # piid: 2 (Charging State): (uint8, unit: None) (acc: ['read', 'notify'], value-list: [{'value': 1, 'description': 'Charging'}, {'value': 2, 'description': 'Not Charging'}, {'value': 5, 'description': 'Go Charging'}], value-range: None)
+    state: int = field(
+        metadata={
+            "siid": 3,
+            "piid": 2,
+            "access": ["read", "notify"],
+            "enum": ChargeStatus,
+        },
         default=None
     )
 
-    # siid 10: (Side Cleaning Brush): 2 props, 1 actions
-    # piid: 1 (Brush Left Time): (uint16, unit: hour) (acc: ['read', 'notify'], value-list: [], value-range: [0, 200, 1])
-    brush_left_time2: int = field(
-        metadata={"siid": 10, "piid": 1, "access": ["read", "notify"]},
-        default=None
-    )
-    # piid: 2 (Brush Life Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
-    brush_life_level2: int = field(
-        metadata={"siid": 10, "piid": 2, "access": ["read", "notify"]},
-        default=None
-    )
-
-    # siid 4: (clean): 15 props, 2 actions
-    # piid: 1 (工作模式): (int32, unit: none) (acc: ['read', 'notify'], value-list: [], value-range: [0, 50, 1])
+    # siid 4: (Sweeper extended function protocol): 15 props, 2 actions
+    # piid: 1 (work-mode): (int32, unit: none) (acc: ['read', 'notify'], value-list: [], value-range: [0, 50, 1])
     operating_mode: int = field(
-        metadata={"siid": 4, "piid": 1, "access": ["read", "notify"]},
+        metadata={"siid": 4,
+            "piid": 1,
+            "access": ["read", "notify"]
+        },
         default=None
     )
-    # piid: 3 (area): (string, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 32767, 1])
-    area: str = field(metadata={"siid": 4, "piid": 3, "access": ["read", "notify"]}, default=None)
+    
     # piid: 2 (timer): (string, unit: minute) (acc: ['read', 'notify'], value-list: [], value-range: [0, 32767, 1])
-    timer: str = field(metadata={"siid": 4, "piid": 2, "access": ["read", "notify"]}, default=None)
-    # piid: 4 (清扫模式): (int32, unit: none) (acc: ['read', 'notify', 'write'], value-list: [{'value': 0, 'description': '安静'}, {'value': 1, 'description': '标准'}, {'value': 2, 'description': '中档'}, {'value': 3, 'description': '强力'}], value-range: None)
+    timer: str = field(
+        metadata={"siid": 4,
+        "piid": 2,
+        "access": ["read", "notify"]
+        },
+        default=None)
+    
+    # piid: 3 (area): (string, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 32767, 1])
+    area: str = field(
+        metadata={"siid": 4,
+        "piid": 3,
+        "access": ["read", "notify"]
+        },
+        default=None)
+    
+    # piid: 4 (Cleaning-mode): (int8, unit: none) (acc: ['read', 'notify', 'write'], value-list: [{'value': 0, 'description': 'Quiet'}, {'value': 1, 'description': 'Standard'}, {'value': 2, 'description': 'Strong'}, {'value': 3, 'description': 'Turbo'}])
     fan_speed: int = field(
         metadata={
             "siid": 4,
@@ -166,6 +165,18 @@ class DreameStatus:
         default=None
     )
 
+    # piid: 5 (mop-mode): (int8, unit: none) (acc: ['read', 'notify', 'write'], value-list: [{'value': 1, 'description': 'low'}, {'value': 2, 'description': 'medium'}, {'value': 3, 'description': 'high'}])
+    water_level: int = field(
+        metadata={
+            "siid": 4,
+            "piid": 5,
+            "access": ["read", "write", "notify"],
+            "enum": WaterLevel,
+        },
+        default=None
+    )
+
+    # piid: 6 (waterbox-status): (int8, unit: none) (acc: ['read', 'notify', 'write'], value-list: [{'value': 0, 'description': ''}, {'value': 1, 'description': 'medium'}])
     waterbox_status: int = field(
         metadata={
             "siid": 4,
@@ -176,113 +187,199 @@ class DreameStatus:
         default=None
     )
 
-    # # piid: 8 (delete-timer): (int32, unit: None) (acc: ['write'], value-list: [], value-range: [0, 100, 1])
-    # # delete_timer: int = field(metadata={"siid": 18, "piid": 8, "access": ["write"]})
-    # # piid: 13 (): (uint32, unit: minutes) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
-    # last_clean: int = field(
-    # metadata={"siid": 18, "piid": 13, "access": ["read", "notify"]},
-    # default=None
-    # )
-
-    # siid 12: (clean-logs): 4 props, 0 actions
-    # piid: 3 (): (uint32, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
-    total_clean_count: int = field(
-        metadata={"siid": 12, "piid": 3, "access": ["read", "notify"]},
-        default=None
-    )
-    # piid: 4 (): (uint32, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
-    total_area: int = field(
-        metadata={"siid": 12, "piid": 4, "access": ["read", "notify"]},
-        default=None
-    )
-
-    # # piid: 16 (): (uint32, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
-    # total_log_start: int = field(
-    # metadata={"siid": 18, "piid": 16, "access": ["read", "notify"]},
-    # default=None
-    # )
-    # # piid: 17 (): (uint16, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
-    # button_led: int = field(
-    # metadata={"siid": 18, "piid": 17, "access": ["read", "notify"]},
-    # default=None
-    # )
-    # # piid: 18 (): (uint8, unit: None) (acc: ['read', 'notify'], value-list: [{'value': 0, 'description': ''}, {'value': 1, 'description': ''}], value-range: None)
-    # clean_success: int = field(
-    # metadata={"siid": 18, "piid": 18, "access": ["read", "notify"]},
-    # default=None
-    # )
-    # # siid 19: (consumable): 3 props, 0 actions
-    # # piid: 1 (life-sieve): (string, unit: None) (acc: ['read', 'write'], value-list: [], value-range: None)
-    # life_sieve: str = field(
-    # metadata={"siid": 19, "piid": 1, "access": ["read", "write"]},
-    # default=None
-    # )
-    # # piid: 2 (life-brush-side): (string, unit: None) (acc: ['read', 'write'], value-list: [], value-range: None)
-    # life_brush_side: str = field(
-    # metadata={"siid": 19, "piid": 2, "access": ["read", "write"]},
-    # default=None
-    # )
-    # # piid: 3 (life-brush-main): (string, unit: None) (acc: ['read', 'write'], value-list: [], value-range: None)
-    # life_brush_main: str = field(
-    # metadata={"siid": 19, "piid": 3, "access": ["read", "write"]},
-    # default=None
-    # )
 
     # siid 5: (do-not-disturb): 3 props, 0 actions
     # piid: 1 (enable): (bool, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
     dnd_enabled: bool = field(
-        metadata={"siid": 5, "piid": 1, "access": ["read", "notify", "write"]},
+        metadata={
+            "siid": 5,
+            "piid": 1,
+            "access": ["read", "notify", "write"]
+        },
         default=None
     )
+    
     # piid: 2 (start-time): (string, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
     dnd_start_time: str = field(
-        metadata={"siid": 5, "piid": 2, "access": ["read", "notify", "write"]},
+        metadata={
+            "siid": 5,
+            "piid": 2,
+            "access": ["read", "notify", "write"]
+        },
         default=None
     )
+    
     # piid: 3 (stop-time): (string, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
     dnd_stop_time: str = field(
-        metadata={"siid": 5, "piid": 3, "access": ["read", "notify", "write"]},
+        metadata={
+            "siid": 5,
+            "piid": 3,
+            "access": ["read", "notify", "write"]
+        },
         default=None
     )
 
-    # siid 21: (remote): 2 props, 3 actions
-    # piid: 1 (deg): (string, unit: None) (acc: ['write'], value-list: [], value-range: None)
-    # deg: str = field(metadata={"siid": 21, "piid": 1, "access": ["write"]})
-    # piid: 2 (speed): (string, unit: None) (acc: ['write'], value-list: [], value-range: None)
-    # speed: str = field(metadata={"siid": 21, "piid": 2, "access": ["write"]})
-    # siid 22: (warn): 1 props, 0 actions
 
     # siid 6: (map): 6 props, 2 actions
-    # piid: 1 (map-view): (string, unit: None) (acc: ['notify'], value-list: [], value-range: None)
-    map_view: str = field(
-        metadata={"siid": 6, "piid": 1, "access": ["notify"]},
+    # piid: 1 (map-data): (string, unit: None) (acc: ['notify'], value-list: [], value-range: None)
+    map_data: str = field(
+        metadata={
+            "siid": 6,
+            "piid": 1,
+            "access": ["notify"]
+        },
         default=None
     )
+    
     # piid: 2 (frame-info): (string, unit: None) (acc: ['write'], value-list: [], value-range: None)
-    # frame_info: str = field(metadata={"siid": 6, "piid": 2, "access": ["write"]})
+    frame_info: str = field(
+        metadata={
+            "siid": 6,
+            "piid": 2,
+            "access": ["write"]
+        },
+        default=None
+    )
 
     # siid 7: (audio): 4 props, 2 actions
     # piid: 1 (volume): (int32, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: [0, 100, 1])
     audio_volume: int = field(
-        metadata={"siid": 7, "piid": 1, "access": ["read", "notify", "write"]},
-        default=None
-    )
-    # piid: 2 (语音包ID): (string, unit: none) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
-    audio_language: str = field(
-        metadata={"siid": 7, "piid": 2, "access": ["read", "notify", "write"]},
+        metadata={
+            "siid": 7,
+            "piid": 1,
+            "access": ["read", "notify", "write"]
+        },
         default=None
     )
 
-    # siid 8: (): 3 props, 1 actions
-    # piid: 1 (): (string, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: None)
+    # piid: 2 (voice-packet-id): (string, unit: none) (acc: ['read', 'notify', 'write'], value-list: [], value-range: None)
+    audio_language: str = field(
+        metadata={
+            "siid": 7,
+            "piid": 2,
+            "access": ["read", "notify", "write"]
+        },
+        default=None
+    )
+
+    # siid 8: (time): 3 props, 1 actions
+    # piid: 1 (time-zone): (string, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: None)
     timezone: str = field(
-        metadata={"siid": 8, "piid": 1, "access": ["read", "notify"]},
+        metadata={
+            "siid": 8,
+            "piid": 1,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+
+    # siid 9: (Main Cleaning Brush): 2 props, 1 actions
+    # piid: 1 (Brush Left Time): (uint16, unit: hour) (acc: ['read', 'notify'], value-list: [], value-range: [0, 300, 1])
+    main_brush_left_time: int = field(
+        metadata={
+            "siid": 9,
+            "piid": 1,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+    
+    # piid: 2 (Brush Life Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
+    main_brush_life_level: int = field(
+        metadata={
+            "siid": 9,
+            "piid": 2,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+
+    # siid 10: (Side Cleaning Brush): 2 props, 1 actions
+    # piid: 1 (Brush Left Time): (uint16, unit: hour) (acc: ['read', 'notify'], value-list: [], value-range: [0, 200, 1])
+    side_brush_left_time: int = field(
+        metadata={
+            "siid": 10,
+            "piid": 1,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+    
+    # piid: 2 (Brush Life Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
+    side_brush_life_level: int = field(
+        metadata={
+            "siid": 10,
+            "piid": 2,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+
+    # siid 11: (Filter): 2 props, 1 actions
+    # piid: 1 (Filter Life Level): (uint8, unit: percentage) (acc: ['read', 'notify'], value-list: [], value-range: [0, 100, 1])
+    filter_life_level: int = field(
+        metadata={
+            "siid": 11,
+            "piid": 1,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+    
+    # piid: 2 (Filter Left Time): (uint16, unit: hour) (acc: ['read', 'notify'], value-list: [], value-range: [0, 150, 1])
+    filter_left_time: int = field(
+        metadata={
+            "siid": 11,
+            "piid": 2,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+
+    # siid 12: (clean-logs): 4 props, 0 actions
+    # piid: 1 (first-clean-time): (uint32, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
+    total_log_start: int = field(
+        metadata={
+            "siid": 12,
+            "piid": 1,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+    
+    # piid: 2 (total-clean-times): (uint32, unit: Minutes) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
+    total_clean_time: int = field(
+        metadata={
+            "siid": 12,
+            "piid": 2,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+    
+    # piid: 3 (total-clean-times): (uint32, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
+    total_clean_count: int = field(
+        metadata={
+            "siid": 12,
+            "piid": 3,
+            "access": ["read", "notify"]
+        },
+        default=None
+    )
+    
+    # piid: 4 (total-clean-area): (uint32, unit: None) (acc: ['read', 'notify'], value-list: [], value-range: [0, 4294967295, 1])
+    total_area: int = field(
+        metadata={
+            "siid": 12,
+            "piid": 4,
+            "access": ["read", "notify"]
+        },
         default=None
     )
 
 
 class DreameVacuum(MiotDevice):
-    """Support for dreame vacuum (1C STYTJ01ZHM, dreame.vacuum.mc1808)."""
+    """Support for dreame vacuum robot d9 (dreame.vacuum.p2009)."""
 
     _MAPPING = DreameStatus
 
@@ -291,7 +388,7 @@ class DreameVacuum(MiotDevice):
         return self.get_properties_for_dataclass(DreameStatus)
 
     def call_action(self, siid, aiid, params=None):
-        # {"did":"<mydeviceID>","siid":18,"aiid":1,"in":[{"piid":1,"value":2}]
+        # {"did":"call-siid-aiid","siid":18,"aiid":1,"in":[{"piid":1,"value":2}]
         if params is None:
             params = []
         payload = {
@@ -406,6 +503,11 @@ class DreameVacuum(MiotDevice):
     def map_req(self) -> None:
         """aiid 1 map-req: in: [2] -> out: []"""
         return self.call_action(6, 1)
+
+    @command(click.argument("water", type=int))
+    def set_water_level(self, water):
+        """Set water level"""
+        return self.set_property(water_level=water)
 
     # siid 7: (audio): 4 props, 2 actions
     # aiid 1 : in: [] -> out: []

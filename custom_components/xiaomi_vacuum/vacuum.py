@@ -59,11 +59,14 @@ ATTR_WATERBOX_STATUS = "waterbox"
 ATTR_RC_DURATION = "duration"
 ATTR_RC_ROTATION = "rotation"
 ATTR_RC_VELOCITY = "velocity"
+ATTR_WATER_LEVEL = "water_level"
+
 
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
 SERVICE_CLEAN_ROOM = "vacuum_clean_room"
 SERVICE_RESTRICTED_ZONE = "vacuum_restricted_zone"
 SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
+SERVICE_WATER_LEVEL = "set_water_level"
 
 SUPPORT_XIAOMI = (
     SUPPORT_STATE
@@ -98,6 +101,12 @@ SPEED_CODE_TO_NAME = {
 WATERBOX_CODE_TO_NAME = {
     0: "Removed",
     1: "Present",
+}
+
+WATER_CODE_TO_NAME = {
+    1: "Low",
+    2: "Med",
+    3: "High",
 }
 
 ERROR_CODE_TO_ERROR = {
@@ -174,6 +183,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         },
         MiroboVacuum.async_clean_room.__name__,
     )
+
     platform.async_register_entity_service(
         SERVICE_RESTRICTED_ZONE,
         {
@@ -184,6 +194,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         },
         MiroboVacuum.async_restricted_zone.__name__,
     )
+
     platform.async_register_entity_service(
         SERVICE_MOVE_REMOTE_CONTROL_STEP,
         {
@@ -195,6 +206,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             ),
         },
         MiroboVacuum.async_remote_control_move_step.__name__,
+    )
+    
+    platform.async_register_entity_service(
+        SERVICE_WATER_LEVEL,
+        {
+            vol.Required(ATTR_WATER_LEVEL): cv.string,
+        },
+        MiroboVacuum.async_set_water_level.__name__,
     )
 
 
@@ -229,7 +248,9 @@ class MiroboVacuum(StateVacuumEntity):
         self._cleaning_time = None
 
         self._waterbox_status = None
-
+        self._water_level = None
+        self._current_water_level = None
+        self._water_level_reverse = None
 
 
     @property
@@ -276,10 +297,26 @@ class MiroboVacuum(StateVacuumEntity):
             speed = self._current_fan_speed
             if speed in self._fan_speeds_reverse:
                 return SPEED_CODE_TO_NAME.get(self._current_fan_speed, "Unknown")
-
             _LOGGER.debug("Unable to find reverse for %s", speed)
-
             return speed
+
+    @property
+    def water_level(self):
+        """Return the water level of the vacuum cleaner."""
+        if self.vacuum_state is not None:
+            water = self._current_water_level
+            if water in self._water_level_reverse:
+                return WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown")
+
+            _LOGGER.debug("Unable to find reverse for %s", water)
+
+            return water
+
+    @property
+    def water_level_list(self):
+        """Get the list of available water level list of the vacuum cleaner."""
+        return list(self._water_level_reverse)
+
 
     @property
     def fan_speed_list(self):
@@ -304,6 +341,8 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_CLEANING_AREA: self._cleaning_area,
                 ATTR_CLEANING_TIME: self._cleaning_time,
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_count,
+                ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown"),
+				"water_level_list": ["Low", "Med", "High"],
             }
 
 
@@ -387,6 +426,25 @@ class MiroboVacuum(StateVacuumEntity):
                 return
         await self._try_command(
             "Unable to set fan speed: %s", self._vacuum.set_fan_speed, fan_speed)
+    
+    async def async_set_water_level(self, water_level, **kwargs):
+        """Set water level."""
+        if water_level in self._water_level_reverse:
+            water_level = self._water_level_reverse[water_level]
+        else:
+            try:
+                water_level = int(water_level)
+            except ValueError as exc:
+                _LOGGER.error(
+                    "water level step not recognized (%s). Valid are: %s",
+                    exc,
+                    self.water_level_list,
+                )
+                return
+        await self._try_command(
+            "Unable to set water level: %s", self._vacuum.set_water_level, water_level)    
+
+
 
     def update(self):
         """Fetch state from the device."""
@@ -417,6 +475,9 @@ class MiroboVacuum(StateVacuumEntity):
             self._cleaning_time = state.timer
 
             self._waterbox_status = state.waterbox_status
+            self._water_level = WATER_CODE_TO_NAME
+            self._water_level_reverse = {v: k for k, v in self._water_level.items()}
+            self._current_water_level = state.water_level
 
         except OSError as exc:
             _LOGGER.error("Got OSError while fetching the state: %s", exc) 
