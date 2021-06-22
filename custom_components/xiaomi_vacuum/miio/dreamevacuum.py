@@ -80,6 +80,39 @@ class WaterLevel(Enum):
     Medium = 2
     High = 3
 
+class taskStatus(Enum):
+
+    TaskCompleted = 0
+    TaskAutoClean = 1
+    TaskCustomAreaClean = 2
+    TaskAreaClean = 3
+    TaskSpotClean = 4
+    TaskFastMapping = 5
+
+class  WorkMode(Enum):
+
+    IdleMode = 0
+    PauseAndStopMode = 1
+    AutoCleanMode = 2
+    BackHomeMode = 3
+    PartCleanMode = 4
+    FollowWallMode = 5
+    ChargingMode = 6
+    OtaModeMode = 7
+    FctModeMode = 8
+    WIFISetMode = 9
+    PowerOffMode = 10
+    FactoryMode = 11
+    ErrRepotMode = 12
+    RemoteCtrlMode = 13
+    SleepMode = 14
+    SelfTestMode = 15
+    FactoryFuncTest = 16
+    StandbyMode = 17
+    AreaClean = 18
+    CustomAreaClean = 19
+    SpotClean = 20
+    FastMapping = 21
 
 @dataclass
 class DreameStatus:
@@ -466,6 +499,14 @@ class DreameVacuum(MiotDevice):
         """Stop cleaning."""
         return self.call_action(4, 2)
 
+    # aiid 4 fast mapping
+    @command()    
+    def fast_map(self) -> None:
+        """Start fast mapping."""
+        payload = [{"piid": 1, "value": 21}]
+        return self.call_action(4, 1, payload)
+
+
     @command(click.argument("coords", type=str))
     def zone_cleanup(self, coords) -> None:
         """Start zone cleaning."""
@@ -473,10 +514,22 @@ class DreameVacuum(MiotDevice):
         return self.call_action(4, 1, payload)
         # # siid 21: (remote): 2 props, 3 actions
 
-    @command(click.argument("coords", type=str))
-    def room_cleanup(self, coords) -> None:
-        """Start room cleaning."""
-        payload = [{"piid": 1, "value": 18}, {"piid": 10, "value": coords}]
+
+    # @command(click.argument("coords", type=str, ""))
+    def room_id_cleanup(self, rooms, repeats,clean_mode,mop_mode) -> None:
+        """Start room-id cleaning."""
+        # clean_mode = 3
+        # mop_mode = 3
+        cleanlist = []
+        for sublist in rooms:
+            if len(sublist) > 1:
+                repeats = sublist[1]
+            if len(sublist) > 2:
+                clean_mode = sublist[2]
+            if len(sublist) > 3:
+                mop_mode = sublist[3]    
+            cleanlist.append([ ord(sublist[0].upper()) - 64, repeats, clean_mode, mop_mode, rooms.index(sublist) + 1 ])
+        payload = [{"piid": 1, "value": 18}, {"piid": 10, "value": "{\"selects\": " + str(cleanlist).replace(' ','') + "}"  }]
         return self.call_action(4, 1, payload)
 
     @command(click.argument("coords", type=str))
@@ -503,6 +556,12 @@ class DreameVacuum(MiotDevice):
     def map_req(self) -> None:
         """aiid 1 map-req: in: [2] -> out: []"""
         return self.call_action(6, 1)
+
+    # aiid 2 set-map
+    @command()
+    def set_map(self, map_id) -> None:
+        payload = [{"piid": 4, "value": "{\"sm\": " + "{" + "}" + ", \"mapid\":" + str(map_id) + "}"}]
+        return self.call_action(6, 2, payload)
 
     @command(click.argument("water", type=int))
     def set_water_level(self, water):

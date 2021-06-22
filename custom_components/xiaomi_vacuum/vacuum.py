@@ -53,20 +53,35 @@ ATTR_SIDE_BRUSH_LIFE_LEVEL = "side_brush_life_level"
 ATTR_FILTER_LIFE_LEVEL = "filter_life_level"
 ATTR_FILTER_LEFT_TIME = "filter_left_time"
 ATTR_CLEANING_TOTAL_TIME = "total_cleaning_count"
-ATTR_ZONE_ARRAY = "zone"
-ATTR_ZONE_REPEATER = "repeats"
 ATTR_WATERBOX_STATUS = "waterbox"
-ATTR_RC_DURATION = "duration"
-ATTR_RC_ROTATION = "rotation"
-ATTR_RC_VELOCITY = "velocity"
 ATTR_WATER_LEVEL = "water_level"
 ATTR_WATER_LEVEL_LIST = "water_level_list"
+ATTR_TASK_STATUS = 'task_status'
+ATTR_WORK_MODE = "work_mode"
+ATTR_MAP_ID_LIST = "map_id_list"
+ATTR_ROOM_LIST = "room_list"
 
+SERVICE_FAST_MAP = "vacuum_fast_map"
+SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
-SERVICE_CLEAN_ROOM = "vacuum_clean_room"
+SERVICE_CLEAN_ROOM_ID = "vacuum_clean_room_id"
+SERVICE_SET_MAP = "vacuum_set_map"
 SERVICE_RESTRICTED_ZONE = "vacuum_restricted_zone"
+SERVICE_RESET_FILTER_LIFE = "vacuum_reset_filter_life"
+SERVICE_RESET_BRUSH_LIFE = "vacuum_reset_brush_life"
+SERVICE_RESET_BRUSH_LIFE2 = "vacuum_reset_brush_life2"
 SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
 SERVICE_WATER_LEVEL = "set_water_level"
+
+INPUT_RC_DURATION = "duration"
+INPUT_RC_ROTATION = "rotation"
+INPUT_RC_VELOCITY = "velocity"
+INPUT_MAP_ID = "map_id"
+INPUT_ZONE_ARRAY = "zone"
+INPUT_ZONE_REPEATER = "repeats"
+INPUT_ROOMS_ARRAY = "rooms"
+INPUT_CLEAN_MODE = "clean_mode"
+INPUT_MOP_MODE = "mop_mode"
 
 SUPPORT_XIAOMI = (
     SUPPORT_STATE
@@ -109,6 +124,40 @@ WATER_CODE_TO_NAME = {
     3: "High",
 }
 
+TASK_CODE_TO_NAME = {
+    0: "Completed",
+    1: "Autoclean",
+    2: "ZoneClean",
+    3: "RoomClean",
+    4: "SpotClean",
+    5: "FastMapping"
+}
+
+WORK_MODE_CODE_TO_NAME = {
+    0: "IdleMode",
+    1: "PauseAndStopMode",
+    2: "AutoCleanMode",
+    3: "BackHomeMode",
+    4: "PartCleanMode",
+    5: "FollowWallMode",
+    6: "ChargingMode",
+    7: "OtaModeMode",
+    8: "FctModeMode",
+    9: "WIFISetMode",
+    10: "PowerOffMode",
+    11: "FactoryMode",
+    12: "ErrRepotMode",
+    13: "RemoteCtrlMode",
+    14: "SleepMode",
+    15: "SelfTestMode",
+    16: "FactoryFuncTest",
+    17: "StandbyMode",
+    18: "AreaClean",
+    19: "CustomAreaClean",
+    20: "SpotClean",
+    21: "FastMapping"   
+}
+
 ERROR_CODE_TO_ERROR = {
     0: "NoError",
     1: "Drop",
@@ -141,7 +190,6 @@ ERROR_CODE_TO_ERROR = {
     28: "Gyroscope",
 }
 
-
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the Xiaomi vacuum cleaner robot platform."""
     if DATA_KEY not in hass.data:
@@ -162,33 +210,52 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     platform = entity_platform.current_platform.get()
 
+
+    platform.async_register_entity_service(
+        SERVICE_FAST_MAP,
+        {
+        },
+        MiroboVacuum.async_fast_map.__name__,
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_SET_MAP,
+        {
+            vol.Optional(INPUT_MAP_ID): cv.positive_int,
+        },
+        MiroboVacuum.async_set_map.__name__,
+    )
+
     platform.async_register_entity_service(
         SERVICE_CLEAN_ZONE,
         {
-            vol.Required(ATTR_ZONE_ARRAY): cv.string,
-            vol.Required(ATTR_ZONE_REPEATER): vol.All(
-                vol.Coerce(int), vol.Clamp(min=1, max=3)
-            ),
+            vol.Required(INPUT_ZONE_ARRAY): cv.string,
         },
         MiroboVacuum.async_clean_zone.__name__,
     )
 
     platform.async_register_entity_service(
-        SERVICE_CLEAN_ROOM,
+        SERVICE_CLEAN_ROOM_ID,
         {
-            vol.Required(ATTR_ZONE_ARRAY): cv.string,
-            vol.Required(ATTR_ZONE_REPEATER): vol.All(
-                vol.Coerce(int), vol.Clamp(min=1, max=3)
-            ),
+           vol.Required(INPUT_ROOMS_ARRAY): cv.ensure_list,
+           vol.Required(INPUT_ZONE_REPEATER): vol.All(
+               vol.Coerce(int), vol.Clamp(min=1, max=10)
+           ),
+           vol.Required(INPUT_CLEAN_MODE): vol.All(
+               vol.Coerce(int), vol.Clamp(min=0, max=3)
+           ),
+           vol.Required(INPUT_MOP_MODE): vol.All(
+               vol.Coerce(int), vol.Clamp(min=1, max=3)
+           ),                      
         },
-        MiroboVacuum.async_clean_room.__name__,
+        MiroboVacuum.async_clean_room_id.__name__,
     )
 
     platform.async_register_entity_service(
         SERVICE_RESTRICTED_ZONE,
         {
-            vol.Required(ATTR_ZONE_ARRAY): cv.string,
-            vol.Required(ATTR_ZONE_REPEATER): vol.All(
+            vol.Required(INPUT_ZONE_ARRAY): cv.string,
+            vol.Required(INPUT_ZONE_REPEATER): vol.All(
                 vol.Coerce(int), vol.Clamp(min=1, max=3)
             ),
         },
@@ -196,12 +263,33 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     )
 
     platform.async_register_entity_service(
+        SERVICE_RESET_FILTER_LIFE,
+        {
+        },
+        MiroboVacuum.async_reset_filter_life.__name__,
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_RESET_BRUSH_LIFE,
+        {
+        },
+        MiroboVacuum.async_reset_brush_life.__name__,
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_RESET_BRUSH_LIFE2,
+        {
+        },
+        MiroboVacuum.async_reset_brush_life2.__name__,
+    )
+
+    platform.async_register_entity_service(
         SERVICE_MOVE_REMOTE_CONTROL_STEP,
         {
-            vol.Optional(ATTR_RC_VELOCITY): vol.All(
+            vol.Optional(INPUT_RC_VELOCITY): vol.All(
                 vol.Coerce(int), vol.Clamp(min=-300, max=300)
             ),
-            vol.Optional(ATTR_RC_ROTATION): vol.All(
+            vol.Optional(INPUT_RC_ROTATION): vol.All(
                 vol.Coerce(int), vol.Clamp(min=-179, max=179)
             ),
         },
@@ -215,7 +303,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         },
         MiroboVacuum.async_set_water_level.__name__,
     )
-
 
 class MiroboVacuum(StateVacuumEntity):
     """Representation of a Xiaomi Vacuum cleaner robot."""
@@ -252,6 +339,9 @@ class MiroboVacuum(StateVacuumEntity):
         self._current_water_level = None
         self._water_level_reverse = None
 
+        self._task_status = None
+        self._work_mode = None
+        self._schedule = None
 
     @property
     def name(self):
@@ -317,7 +407,6 @@ class MiroboVacuum(StateVacuumEntity):
         """Get the list of available water level list of the vacuum cleaner."""
         return list(self._water_level_reverse)
 
-
     @property
     def fan_speed_list(self):
         """Get the list of available fan speed steps of the vacuum cleaner."""
@@ -330,6 +419,9 @@ class MiroboVacuum(StateVacuumEntity):
             return {
                 ATTR_STATUS: STATE_CODE_TO_STATE[int(self.vacuum_state)],
 				ATTR_WATERBOX_STATUS: WATERBOX_CODE_TO_NAME.get(self._waterbox_status, "Unknown"),
+                ATTR_TASK_STATUS: TASK_CODE_TO_NAME.get(self._task_status, "Unknown"), #new attr
+                ATTR_WORK_MODE: WORK_MODE_CODE_TO_NAME.get(self._work_mode, "Unknown"), #new attr
+                ATTR_ERROR: ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
                 ATTR_ERROR:  ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
 				ATTR_FAN_SPEED: SPEED_CODE_TO_NAME.get(self._current_fan_speed, "Unknown"),
                 ATTR_MAIN_BRUSH_LEFT_TIME: self._main_brush_time_left,
@@ -342,9 +434,19 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_CLEANING_TIME: self._cleaning_time,
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_count,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown"),
-				ATTR_WATER_LEVEL_LIST: ["Low", "Med", "High"],
+				# ATTR_WATER_LEVEL_LIST: ["Low", "Med", "High"],
+                ATTR_MAP_ID_LIST: dict( zip( 
+                    list ( "map_id_" + str(x) for x in range(len(self._schedule.split(';'))) if len(self._schedule) > 0), list( 
+                        int (x.split('-')[5]) for x in self._schedule.split(';')
+                         if len(self._schedule) > 0 ) )),
+                ATTR_ROOM_LIST: dict( zip( 
+                    list ( "map_id_" + str(x) for x in range(len(self._schedule.split(';'))) if len(self._schedule) > 0 ), list( 
+                        [chr( int(item) + 64) for item in list( 
+                            x.split(',') for x in list( 
+                                x.split('-')[8] for x in self._schedule.split(';') ) )[i]]
+                                 for i in range(len(self._schedule.split(';') ))
+                                  if len(self._schedule) > 0 ))),
             }
-
 
     @property
     def supported_features(self):
@@ -374,19 +476,19 @@ class MiroboVacuum(StateVacuumEntity):
         """Stop the vacuum cleaner."""
         await self._try_command("Unable to stop: %s", self._vacuum.stop)
 
-    async def async_clean_zone(self, zone, repeats=1):
+    async def async_clean_zone(self, zone):
         """Clean selected area."""
         try:
             await self.hass.async_add_executor_job(self._vacuum.zone_cleanup, zone)
         except (OSError, DeviceException) as exc:
             _LOGGER.error("Unable to send zoned_clean command to the vacuum: %s", exc)
 
-    async def async_clean_room(self, zone, repeats=1):
-        """Clean selected room."""
+    async def async_clean_room_id(self, rooms, repeats, clean_mode, mop_mode):
+        """Clean selected room using id."""      
         try:
-            await self.hass.async_add_executor_job(self._vacuum.room_cleanup, zone)
+            await self.hass.async_add_executor_job(self._vacuum.room_id_cleanup, rooms, repeats, clean_mode, mop_mode)
         except (OSError, DeviceException) as exc:
-            _LOGGER.error("Unable to send room_clean command to the vacuum: %s", exc)
+            _LOGGER.error("Unable to send room_id_clean command to the vacuum: %s", exc)
 
     async def async_restricted_zone(self, zone, repeats=1):
         """Create restricted zone."""
@@ -401,6 +503,27 @@ class MiroboVacuum(StateVacuumEntity):
             await self.hass.async_add_executor_job(self._vacuum.manual_control_once, rotation, velocity)
         except (OSError, DeviceException) as exc:
             _LOGGER.error("Unable to send remote control step command to the vacuum: %s", exc)
+ 
+    async def async_reset_filter_life(self):
+        """Reset filter life."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.reset_filter_life)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send reset_filter_life command to the vacuum: %s", exc)
+    
+    async def async_reset_brush_life(self):
+        """Reset filter life."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.reset_brush_life)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send reset_brush_life command to the vacuum: %s", exc)
+    
+    async def async_reset_brush_life2(self):
+        """Reset filter life."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.reset_brush_life2)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send reset_brush_life2 command to the vacuum: %s", exc)            
 
     async def async_pause(self):
         """Pause the cleaning task."""
@@ -427,6 +550,20 @@ class MiroboVacuum(StateVacuumEntity):
         await self._try_command(
             "Unable to set fan speed: %s", self._vacuum.set_fan_speed, fan_speed)
     
+    async def async_set_map(self, map_id):
+        """Set map."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.set_map, map_id)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send set_map command to the vacuum: %s", exc)     
+
+    async def async_fast_map(self):
+        """Fast map."""
+        try:
+            await self.hass.async_add_executor_job(self._vacuum.fast_map)
+        except (OSError, DeviceException) as exc:
+            _LOGGER.error("Unable to send fast_map command to the vacuum: %s", exc) 
+
     async def async_set_water_level(self, water_level, **kwargs):
         """Set water level."""
         if water_level in self._water_level_reverse:
@@ -443,7 +580,6 @@ class MiroboVacuum(StateVacuumEntity):
                 return
         await self._try_command(
             "Unable to set water level: %s", self._vacuum.set_water_level, water_level)    
-
 
 
     def update(self):
@@ -479,5 +615,8 @@ class MiroboVacuum(StateVacuumEntity):
             self._water_level_reverse = {v: k for k, v in self._water_level.items()}
             self._current_water_level = state.water_level
 
+            self._task_status = state.task_status
+            self._work_mode = state.work_mode
+            self._schedule = state.schedule
         except OSError as exc:
             _LOGGER.error("Got OSError while fetching the state: %s", exc) 
