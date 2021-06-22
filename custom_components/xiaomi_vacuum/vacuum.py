@@ -83,6 +83,9 @@ STATE_CODE_TO_STATE = {
     4: STATE_ERROR,
     5: STATE_RETURNING,
     6: STATE_DOCKED,
+    7: STATE_CLEANING, # STATE_MOPPING does not exist in HA,
+                       # use in conjunction with water tank present
+                       # to detect mopping if needed
 }
 
 SPEED_CODE_TO_NAME = {
