@@ -60,7 +60,7 @@ ATTR_RC_DURATION = "duration"
 ATTR_RC_ROTATION = "rotation"
 ATTR_RC_VELOCITY = "velocity"
 ATTR_WATER_LEVEL = "water_level"
-
+ATTR_WATER_LEVEL_LIST = "water_level_list"
 
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
 SERVICE_CLEAN_ROOM = "vacuum_clean_room"
@@ -342,7 +342,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_CLEANING_TIME: self._cleaning_time,
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_count,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown"),
-				"water_level_list": ["Low", "Med", "High"],
+				ATTR_WATER_LEVEL_LIST: ["Low", "Med", "High"],
             }
 
 
@@ -462,11 +462,11 @@ class MiroboVacuum(StateVacuumEntity):
 
             self._current_fan_speed = state.fan_speed
 
-            self._main_brush_time_left = state.brush_left_time
-            self._main_brush_life_level = state.brush_life_level
+            self._main_brush_time_left = state.main_brush_left_time
+            self._main_brush_life_level = state.main_brush_life_level
 
-            self._side_brush_time_left = state.brush_left_time2
-            self._side_brush_life_level = state.brush_life_level2
+            self._side_brush_time_left = state.side_brush_left_time
+            self._side_brush_life_level = state.side_brush_life_level
 
             self._filter_life_level = state.filter_life_level
             self._filter_left_time = state.filter_left_time
