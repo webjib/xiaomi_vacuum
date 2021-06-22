@@ -43,3 +43,22 @@ vacuum_remote_control_move_step:
     velocity:
       description: Distance between 0 and 300.
       example: '200'
+set_water_level:
+  description: Set water level for mopping.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.xiaomi_vacuum_cleaner"
+    water_level:
+      description: water level, 1:low, 2:medium, 3:high
+      default: "2"
+      required: true
+      selector:
+        select:
+          options:
+            - "1"
+            - "2"
+            - "3"
