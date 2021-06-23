@@ -508,12 +508,12 @@ class MiroboVacuum(StateVacuumEntity):
     @property
     def water_level_list(self):
         """Get the list of available water level list of the vacuum cleaner."""
-        return list(self._water_level_reverse)
+        return list(self._water_level_reverse)[1:]
 
     @property
     def fan_speed_list(self):
         """Get the list of available fan speed steps of the vacuum cleaner."""
-        return list(self._fan_speeds_reverse)
+        return list(self._fan_speeds_reverse)[1:]
 
     @property
     def device_state_attributes(self):
