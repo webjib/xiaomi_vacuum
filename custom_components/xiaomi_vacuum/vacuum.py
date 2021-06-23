@@ -52,7 +52,10 @@ ATTR_SIDE_BRUSH_LEFT_TIME = "side_brush_time_left"
 ATTR_SIDE_BRUSH_LIFE_LEVEL = "side_brush_life_level"
 ATTR_FILTER_LIFE_LEVEL = "filter_life_level"
 ATTR_FILTER_LEFT_TIME = "filter_left_time"
-ATTR_CLEANING_TOTAL_TIME = "total_cleaning_count"
+ATTR_CLEANING_TOTAL_TIME = "total_cleaning_time"
+ATTR_CLEANING_TOTAL_COUNT = "total_cleaning_count"
+ATTR_CLEANING_TOTAL_AREA = "total_cleaning_area"
+ATTR_CLEANING_LOG_START = "first_time_cleaning"
 ATTR_WATERBOX_STATUS = "waterbox"
 ATTR_WATER_LEVEL = "water_level"
 ATTR_WATER_LEVEL_LIST = "water_level_list"
@@ -64,6 +67,7 @@ ATTR_DND_ENABLED = "dnd_enabled"
 ATTR_DND_START_TIME = "dnd_start"
 ATTR_DND_STOP_TIME = "dnd_stop"
 ATTR_AUDIO_LANGUAGE = "audio_language"
+ATTR_AUDIO_VOLUME = "audio_volume"
 ATTR_TIMEZONE = "timezone"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
@@ -336,6 +340,10 @@ class MiroboVacuum(StateVacuumEntity):
         self._filter_left_time = None
 
         self._total_clean_count = None
+        self._total_clean_time = None
+        self._total_log_start = None 
+        self._total_area = None
+        
         self._cleaning_area = None
         self._cleaning_time = None
 
@@ -352,6 +360,7 @@ class MiroboVacuum(StateVacuumEntity):
         self._dnd_start_time = None
         self._dnd_stop_time = None
 
+        self._audio_volume = None
         self._audio_language = None
 
         self._timezone = None
@@ -439,6 +448,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_DND_ENABLED: self._dnd_enabled,
                 ATTR_DND_START_TIME : self._dnd_start_time,
                 ATTR_DND_STOP_TIME : self._dnd_stop_time,
+                ATTR_AUDIO_VOLUME : self._audio_volume,
                 ATTR_AUDIO_LANGUAGE : self._audio_language,
                 ATTR_TIMEZONE : self._timezone,
 				ATTR_FAN_SPEED: SPEED_CODE_TO_NAME.get(self._current_fan_speed, "Unknown"),
@@ -450,7 +460,10 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_FILTER_LEFT_TIME: self._filter_left_time,
                 ATTR_CLEANING_AREA: self._cleaning_area,
                 ATTR_CLEANING_TIME: self._cleaning_time,
+                ATTR_CLEANING_LOG_START: self._total_log_start,
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_count,
+                ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
+                ATTR_CLEANING_TOTAL_AREA: self._total_area,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown"),
 				# ATTR_WATER_LEVEL_LIST: ["Low", "Med", "High"],
                 ATTR_MAP_ID_LIST: dict( zip( 
@@ -613,6 +626,9 @@ class MiroboVacuum(StateVacuumEntity):
             self.battery_percentage = state.battery
 
             self._total_clean_count = state.total_clean_count
+            self._total_clean_time = state.total_clean_time
+            self._total_log_start = state.total_log_start
+            self._total_area = state.total_area
 
             self._current_fan_speed = state.fan_speed
 
@@ -641,6 +657,7 @@ class MiroboVacuum(StateVacuumEntity):
             self._dnd_start_time = state.dnd_start_time
             self._dnd_stop_time = state.dnd_stop_time
 
+            self._audio_volume = state.audio_volume
             self._audio_language = state.audio_language
 
             self._timezone = state.timezone
