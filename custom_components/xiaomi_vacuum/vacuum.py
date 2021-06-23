@@ -60,6 +60,11 @@ ATTR_TASK_STATUS = 'task_status'
 ATTR_WORK_MODE = "work_mode"
 ATTR_MAP_ID_LIST = "map_id_list"
 ATTR_ROOM_LIST = "room_list"
+ATTR_DND_ENABLED = "dnd_enabled"
+ATTR_DND_START_TIME = "dnd_start"
+ATTR_DND_STOP_TIME = "dnd_stop"
+ATTR_AUDIO_LANGUAGE = "audio_language"
+ATTR_TIMEZONE = "timezone"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
 SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
@@ -343,6 +348,14 @@ class MiroboVacuum(StateVacuumEntity):
         self._work_mode = None
         self._schedule = None
 
+        self._dnd_enabled = None
+        self._dnd_start_time = None
+        self._dnd_stop_time = None
+
+        self._audio_language = None
+
+        self._timezone = None
+
     @property
     def name(self):
         """Return the name of the device."""
@@ -423,6 +436,11 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_WORK_MODE: WORK_MODE_CODE_TO_NAME.get(self._work_mode, "Unknown"), #new attr
                 ATTR_ERROR: ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
                 ATTR_ERROR:  ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
+                ATTR_DND_ENABLED: self._dnd_enabled,
+                ATTR_DND_START_TIME : self._dnd_start_time,
+                ATTR_DND_STOP_TIME : self._dnd_stop_time,
+                ATTR_AUDIO_LANGUAGE : self._audio_language,
+                ATTR_TIMEZONE : self._timezone,
 				ATTR_FAN_SPEED: SPEED_CODE_TO_NAME.get(self._current_fan_speed, "Unknown"),
                 ATTR_MAIN_BRUSH_LEFT_TIME: self._main_brush_time_left,
                 ATTR_MAIN_BRUSH_LIFE_LEVEL: self._main_brush_life_level,
@@ -618,5 +636,14 @@ class MiroboVacuum(StateVacuumEntity):
             self._task_status = state.task_status
             self._work_mode = state.work_mode
             self._schedule = state.schedule
+
+            self._dnd_enabled = state.dnd_enabled
+            self._dnd_start_time = state.dnd_start_time
+            self._dnd_stop_time = state.dnd_stop_time
+
+            self._audio_language = state.audio_language
+
+            self._timezone = state.timezone
+
         except OSError as exc:
             _LOGGER.error("Got OSError while fetching the state: %s", exc) 
