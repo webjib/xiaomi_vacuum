@@ -271,26 +271,26 @@ class DreameStatus:
     )
 
 
-    # siid 6: (map): 6 props, 2 actions
-    # piid: 1 (map-data): (string, unit: None) (acc: ['notify'], value-list: [], value-range: None)
-    map_data: str = field(
-        metadata={
-            "siid": 6,
-            "piid": 1,
-            "access": ["notify"]
-        },
-        default=None
-    )
+    # # siid 6: (map): 6 props, 2 actions
+    # # piid: 1 (map-data): (string, unit: None) (acc: ['notify'], value-list: [], value-range: None)
+    # map_data: str = field(
+    #     metadata={
+    #         "siid": 6,
+    #         "piid": 1,
+    #         "access": ["notify"]
+    #     },
+    #     default=None
+    # )
     
-    # piid: 2 (frame-info): (string, unit: None) (acc: ['write'], value-list: [], value-range: None)
-    frame_info: str = field(
-        metadata={
-            "siid": 6,
-            "piid": 2,
-            "access": ["write"]
-        },
-        default=None
-    )
+    # # piid: 2 (frame-info): (string, unit: None) (acc: ['write'], value-list: [], value-range: None)
+    # frame_info: str = field(
+    #     metadata={
+    #         "siid": 6,
+    #         "piid": 2,
+    #         "access": ["write"]
+    #     },
+    #     default=None
+    # )
 
     # siid 7: (audio): 4 props, 2 actions
     # piid: 1 (volume): (int32, unit: None) (acc: ['read', 'notify', 'write'], value-list: [], value-range: [0, 100, 1])
