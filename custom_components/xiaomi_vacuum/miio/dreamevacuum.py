@@ -24,7 +24,7 @@ _MAPPING: MiotMapping = {
     "cleaning_mode": {"siid": 4, "piid": 4},
     "water_level": {"siid": 4, "piid": 5},
     "waterbox_status": {"siid": 4, "piid": 6},
-    "task_status": {"siid": 4, "piid": 7},
+    "operation_status": {"siid": 4, "piid": 7},
 
     "dnd_enabled": {"siid": 5, "piid": 1},
     "dnd_start_time": {"siid": 5, "piid": 2},
@@ -124,14 +124,14 @@ class WaterLevel(Enum):
     Medium = 2
     High = 3
 
-class TaskStatus(Enum):
+class OperationStatus(Enum):
     Unknown = -1
-    TaskCompleted = 0
-    TaskAutoClean = 1
-    TaskCustomAreaClean = 2
-    TaskAreaClean = 3
-    TaskSpotClean = 4
-    TaskFastMapping = 5
+    OperationCompleted = 0
+    OperationAutoClean = 1
+    OperationCustomAreaClean = 2
+    OperationAreaClean = 3
+    OperationSpotClean = 4
+    OperationFastMapping = 5
 
 class  OperatingMode(Enum):
     Unknown = -1
@@ -231,12 +231,12 @@ class DreameVacuumStatus(DeviceStatusContainer):
             return Waterbox.Unknown
 
     @property
-    def task_status(self) -> TaskStatus:
+    def operation_status(self) -> OperationStatus:
         try:
-            return TaskStatus(self.data["task_status"])
+            return OperationStatus(self.data["operation_status"])
         except ValueError:
-            _LOGGER.error("Unknown task_status (%s)", self.data["task_status"])
-            return TaskStatus.Unknown
+            _LOGGER.error("Unknown operation_status (%s)", self.data["operation_status"])
+            return OperationStatus.Unknown
 
     @property
     def dnd_enabled(self) -> bool:

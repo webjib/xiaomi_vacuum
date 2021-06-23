@@ -4,7 +4,7 @@ import logging
 import voluptuous as vol
 
 from .miio import DreameVacuum, DeviceException
-from .miio.dreamevacuum import TaskStatus, VacuumStatus, VacuumSpeed, Waterbox, WaterLevel, OperatingMode, ErrorCodes
+from .miio.dreamevacuum import OperationStatus, VacuumStatus, VacuumSpeed, Waterbox, WaterLevel, OperatingMode, ErrorCodes
 
 from homeassistant.components.vacuum import (
     PLATFORM_SCHEMA,
@@ -60,7 +60,7 @@ ATTR_CLEANING_LOG_START = "first_time_cleaning"
 ATTR_WATERBOX_STATUS = "waterbox"
 ATTR_WATER_LEVEL = "water_level"
 ATTR_WATER_LEVEL_LIST = "water_level_list"
-ATTR_TASK_STATUS = 'task_status'
+ATTR_OPERATION_STATUS = 'operation_status'
 ATTR_OPERATING_MODE = "operating_mode"
 ATTR_MAP_ID_LIST = "map_id_list"
 ATTR_ROOM_LIST = "room_list"
@@ -108,12 +108,12 @@ WATER_LEVEL_LOW = "low"
 WATER_LEVEL_MEDIUM = "medium"
 WATER_LEVEL_HIGHT = "high"
 
-TASK_COMPLETED = "Completed"
-TASK_AUTO_CLEAN = "Autoclean",
-TASK_CUSTOM_AREA_CLEAN = "ZoneClean",
-TASK_AREA_CLEAN = "RoomClean",
-TASK_SPOT_CLEAN = "SpotClean",
-TASK_FAST_MAPPING = "FastMapping"
+OPERATION_STATUS_COMPLETED = "Completed"
+OPERATION_STATUS_AUTO_CLEAN = "Autoclean",
+OPERATION_STATUS_CUSTOM_AREA_CLEAN = "ZoneClean",
+OPERATION_STATUS_AREA_CLEAN = "RoomClean",
+OPERATION_STATUS_SPOT_CLEAN = "SpotClean",
+OPERATION_STATUS_FAST_MAPPING = "FastMapping"
 
 OPERATION_IDLE_MODE = "idle"
 OPERATION_PAUSE_AND_STOP_MODE = "pause and stop"
@@ -211,14 +211,14 @@ WATER_CODE_TO_NAME = {
     WaterLevel.High: WATER_LEVEL_HIGHT
 }
 
-TASK_CODE_TO_NAME = {
-    TaskStatus.Unknown: STATE_UNKNWON,
-    TaskStatus.TaskCompleted:TASK_COMPLETED,
-    TaskStatus.TaskAutoClean:TASK_AUTO_CLEAN,
-    TaskStatus.TaskCustomAreaClean:TASK_CUSTOM_AREA_CLEAN,
-    TaskStatus.TaskAreaClean:TASK_AREA_CLEAN,
-    TaskStatus.TaskSpotClean:TASK_SPOT_CLEAN,
-    TaskStatus.TaskFastMapping:TASK_FAST_MAPPING
+OPERATION_STATUS_CODE_TO_NAME = {
+    OperationStatus.Unknown: STATE_UNKNWON,
+    OperationStatus.OperationCompleted:OPERATION_STATUS_COMPLETED,
+    OperationStatus.OperationAutoClean:OPERATION_STATUS_AUTO_CLEAN,
+    OperationStatus.OperationCustomAreaClean:OPERATION_STATUS_CUSTOM_AREA_CLEAN,
+    OperationStatus.OperationAreaClean:OPERATION_STATUS_AREA_CLEAN,
+    OperationStatus.OperationSpotClean:OPERATION_STATUS_SPOT_CLEAN,
+    OperationStatus.OperationFastMapping:OPERATION_STATUS_FAST_MAPPING
 }
 
 OPERATING_MODE_CODE_TO_NAME = {
@@ -434,7 +434,7 @@ class MiroboVacuum(StateVacuumEntity):
         self._current_water_level = None
         self._water_level_reverse = None
 
-        self._task_status = None
+        self._operation_status = None
         self._operating_mode = None
         self._schedule = ""
 
@@ -524,7 +524,7 @@ class MiroboVacuum(StateVacuumEntity):
             return {
                 ATTR_STATUS: STATE_CODE_TO_STATE[self.vacuum_state],
                 ATTR_WATERBOX_STATUS: WATERBOX_CODE_TO_NAME.get(self._waterbox_status, "Unknown"),
-                ATTR_TASK_STATUS: TASK_CODE_TO_NAME.get(self._task_status, "Unknown"),
+                ATTR_OPERATION_STATUS: OPERATION_STATUS_CODE_TO_NAME.get(self._operation_status, "Unknown"),
                 ATTR_OPERATING_MODE: OPERATING_MODE_CODE_TO_NAME.get(self._operating_mode, "Unknown"),
                 ATTR_ERROR: ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
                 ATTR_ERROR:  ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
@@ -544,11 +544,11 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_CLEANING_AREA: self._cleaning_area,
                 ATTR_CLEANING_TIME: self._cleaning_time,
                 ATTR_CLEANING_LOG_START: self._total_log_start,
-                ATTR_CLEANING_TOTAL_TIME: self._total_clean_count,
+                ATTR_CLEANING_TOTAL_TIME: self._total_clean_time,
                 ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
                 ATTR_CLEANING_TOTAL_AREA: self._total_clean_area,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown"),
-                # ATTR_WATER_LEVEL_LIST: ["Low", "Medium", "High"],
+                ATTR_WATER_LEVEL_LIST: self.water_level_list,
                 ATTR_MAP_ID_LIST: dict( zip(
                     list ( "map_id_" + str(x) for x in range(len(self._schedule.split(';'))) if len(self._schedule) > 0), list(
                         int (x.split('-')[5]) for x in self._schedule.split(';')
@@ -732,7 +732,7 @@ class MiroboVacuum(StateVacuumEntity):
             self._water_level_reverse = {v: k for k, v in self._water_level.items()}
             self._current_water_level = state.water_level
 
-            self._task_status = state.task_status
+            self._operation_status = state.operation_status
             self._operating_mode = state.operating_mode
             self._schedule = state.schedule if state.schedule is not None else ""
 
