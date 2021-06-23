@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import IntEnum
 
 import click
 from .click_common import command
@@ -51,7 +51,7 @@ _MAPPING: MiotMapping = {
     "total_clean_area": {"siid": 12, "piid": 4},
 }
 
-class ChargeStatus(Enum):
+class ChargeStatus(IntEnum):
     Unknown = -1
     Charging = 1
     Not_charging = 2
@@ -59,7 +59,7 @@ class ChargeStatus(Enum):
     Go_charging = 5
 
 
-class ErrorCodes(Enum):
+class ErrorCodes(IntEnum):
     Unknown = -1
     NoError = 0
     Drop = 1
@@ -92,7 +92,7 @@ class ErrorCodes(Enum):
     Gyroscope = 28
 
 
-class VacuumStatus(Enum):
+class VacuumStatus(IntEnum):
     Unknown = -1
     Sweeping = 1
     Idle = 2
@@ -103,7 +103,7 @@ class VacuumStatus(Enum):
     Mopping = 7
 
 
-class VacuumSpeed(Enum):
+class VacuumSpeed(IntEnum):
     """Fan speeds, same as for ViomiVacuum."""
     Unknown = -1
     Silent = 0
@@ -112,19 +112,19 @@ class VacuumSpeed(Enum):
     Turbo = 3
 
 
-class Waterbox(Enum):
+class Waterbox(IntEnum):
     """Fan speeds, same as for ViomiVacuum."""
     Unknown = -1
     Removed = 0
     Present = 1
 
-class WaterLevel(Enum):
+class WaterLevel(IntEnum):
     Unknown = -1
     Low = 1
     Medium = 2
     High = 3
 
-class OperationStatus(Enum):
+class OperationStatus(IntEnum):
     Unknown = -1
     OperationCompleted = 0
     OperationAutoClean = 1
@@ -133,7 +133,7 @@ class OperationStatus(Enum):
     OperationSpotClean = 4
     OperationFastMapping = 5
 
-class  OperatingMode(Enum):
+class  OperatingMode(IntEnum):
     Unknown = -1
     IdleMode = 0
     PauseAndStopMode = 1
@@ -334,9 +334,9 @@ class DreameVacuum(MiotDevice):
         }
         return self.send("action", payload)
 
-    @command()
+    @command(click.argument("speed", type=int))
     def set_fan_speed(self, speed):
-        return self.set_property(fan_speed=speed)
+        return self.set_property("cleaning_mode",speed)
 
     # siid 3: (Battery): 2 props, 1 actions
     # aiid 1 Start Charge: in: [] -> out: []
@@ -460,7 +460,7 @@ class DreameVacuum(MiotDevice):
     @command(click.argument("water", type=int))
     def set_water_level(self, water):
         """Set water level"""
-        return self.set_property(water_level=water)
+        return self.set_property("water_level",water)
 
     # siid 7: (audio): 4 props, 2 actions
     # aiid 1: in: [] -> out: []
