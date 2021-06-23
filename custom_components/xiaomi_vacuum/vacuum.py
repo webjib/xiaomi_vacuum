@@ -93,20 +93,20 @@ INPUT_ROOMS_ARRAY = "rooms"
 INPUT_CLEAN_MODE = "clean_mode"
 INPUT_MOP_MODE = "mop_mode"
 
-STATE_MOPPING = "mopping"
-STATE_UNKNWON = "unknown"
+STATE_MOPPING = "Mopping"
+STATE_UNKNWON = "Unknown"
 
-SPEED_SILENT = "silent"
-SPEED_STANDARD = "standard"
-SPEED_STRONG = "strong"
-SPEED_TURBO = "turbo"
+SPEED_SILENT = "Silent"
+SPEED_STANDARD = "Standard"
+SPEED_STRONG = "Strong"
+SPEED_TURBO = "Turbo"
 
-WATERBOX_PRESENT = "present"
-WATERBOX_REMOVED = "removed"
+WATERBOX_PRESENT = "Present"
+WATERBOX_REMOVED = "Removed"
 
-WATER_LEVEL_LOW = "low"
-WATER_LEVEL_MEDIUM = "medium"
-WATER_LEVEL_HIGHT = "high"
+WATER_LEVEL_LOW = "Low"
+WATER_LEVEL_MEDIUM = "Medium"
+WATER_LEVEL_HIGHT = "High"
 
 OPERATION_STATUS_COMPLETED = "Completed"
 OPERATION_STATUS_AUTO_CLEAN = "Autoclean",
