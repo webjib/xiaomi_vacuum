@@ -99,7 +99,7 @@ STATE_UNKNWON = "unknown"
 SPEED_SILENT = "silent"
 SPEED_STANDARD = "standard"
 SPEED_STRONG = "strong"
-SPEED_Turbo = "turbo"
+SPEED_TURBO = "turbo"
 
 WATERBOX_PRESENT = "present"
 WATERBOX_REMOVED = "removed"
@@ -194,7 +194,8 @@ SPEED_CODE_TO_NAME = {
     VacuumSpeed.Unknown: STATE_UNKNWON,
     VacuumSpeed.Silent: SPEED_SILENT,
     VacuumSpeed.Standard: SPEED_STANDARD,
-    VacuumSpeed.strong: SPEED_STRONG
+    VacuumSpeed.strong: SPEED_STRONG,
+    VacuumSpeed.Turbo: SPEED_TURBO
 }
 
 WATERBOX_CODE_TO_NAME = {
