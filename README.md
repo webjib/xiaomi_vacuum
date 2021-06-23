@@ -19,7 +19,7 @@ Current list of attributes:
 - timezone
 - main_brush_time_left
 - side_brush_time_left
-- filter_left_time
+- filter_time_left
 - cleaning_area
 - cleaning_time
 - first_time_cleaning
