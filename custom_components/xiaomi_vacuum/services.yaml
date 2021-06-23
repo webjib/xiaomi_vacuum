@@ -54,11 +54,11 @@ set_water_level:
       example: "vacuum.xiaomi_vacuum_cleaner"
     water_level:
       description: water level, 1:low, 2:medium, 3:high
-      default: "2"
+      default: "Medium"
       required: true
       selector:
         select:
           options:
-            - "1"
-            - "2"
-            - "3"
+            - "Low"
+            - "Medium"
+            - "High"

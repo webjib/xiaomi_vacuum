@@ -129,7 +129,7 @@ WATERBOX_CODE_TO_NAME = {
 
 WATER_CODE_TO_NAME = {
     1: "Low",
-    2: "Med",
+    2: "Medium",
     3: "High",
 }
 
@@ -465,7 +465,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
                 ATTR_CLEANING_TOTAL_AREA: self._total_area,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown"),
-				# ATTR_WATER_LEVEL_LIST: ["Low", "Med", "High"],
+				# ATTR_WATER_LEVEL_LIST: ["Low", "Medium", "High"],
                 ATTR_MAP_ID_LIST: dict( zip( 
                     list ( "map_id_" + str(x) for x in range(len(self._schedule.split(';'))) if len(self._schedule) > 0), list( 
                         int (x.split('-')[5]) for x in self._schedule.split(';')
