@@ -1,4 +1,4 @@
-"""miIO protocol implementation
+"""miIO protocol implementation.
 
 This module contains the implementation of the routines to encrypt and decrypt
 miIO payloads with a device-specific token.
@@ -38,11 +38,13 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
+from miio.exceptions import PayloadDecodeException
+
 _LOGGER = logging.getLogger(__name__)
 
 
 class Utils:
-    """ This class is adapted from the original xpn.py code by gst666 """
+    """This class is adapted from the original xpn.py code by gst666."""
 
     @staticmethod
     def verify_token(token: bytes):
@@ -55,7 +57,7 @@ class Utils:
     @staticmethod
     def md5(data: bytes) -> bytes:
         """Calculates a md5 hashsum for the given bytes object."""
-        checksum = hashlib.md5()
+        checksum = hashlib.md5()  # nosec
         checksum.update(data)
         return checksum.digest()
 
@@ -72,7 +74,8 @@ class Utils:
 
         :param bytes plaintext: Plaintext (json) to encrypt
         :param bytes token: Token to use
-        :return: Encrypted bytes"""
+        :return: Encrypted bytes
+        """
         if not isinstance(plaintext, bytes):
             raise TypeError("plaintext requires bytes")
         Utils.verify_token(token)
@@ -91,7 +94,8 @@ class Utils:
 
         :param bytes ciphertext: Ciphertext to decrypt
         :param bytes token: Token to use
-        :return: Decrypted bytes object"""
+        :return: Decrypted bytes object
+        """
         if not isinstance(ciphertext, bytes):
             raise TypeError("ciphertext requires bytes")
         Utils.verify_token(token)
@@ -108,7 +112,7 @@ class Utils:
 
     @staticmethod
     def checksum_field_bytes(ctx: Dict[str, Any]) -> bytearray:
-        """Gather bytes for checksum calculation"""
+        """Gather bytes for checksum calculation."""
         x = bytearray(ctx["header"].data)
         x += ctx["_"]["token"]
         if "data" in ctx:
@@ -151,7 +155,8 @@ class EncryptionAdapter(Adapter):
     def _encode(self, obj, context, path):
         """Encrypt the given payload with the token stored in the context.
 
-        :param obj: JSON object to encrypt"""
+        :param obj: JSON object to encrypt
+        """
         # pp(context)
         return Utils.encrypt(
             json.dumps(obj).encode("utf-8") + b"\x00", context["_"]["token"]
@@ -160,13 +165,15 @@ class EncryptionAdapter(Adapter):
     def _decode(self, obj, context, path):
         """Decrypts the given payload with the token stored in the context.
 
-        :return str: JSON object"""
+        :return str: JSON object
+        """
         try:
             # pp(context)
             decrypted = Utils.decrypt(obj, context["_"]["token"])
             decrypted = decrypted.rstrip(b"\x00")
         except Exception:
-            _LOGGER.debug("Unable to decrypt, returning raw bytes: %s", obj)
+            if obj:
+                _LOGGER.debug("Unable to decrypt, returning raw bytes: %s", obj)
             return obj
 
         # list of adaption functions for malformed json payload (quirks)
@@ -193,7 +200,10 @@ class EncryptionAdapter(Adapter):
                 # log the error when decrypted bytes couldn't be loaded
                 # after trying all quirk adaptions
                 if i == len(decrypted_quirks) - 1:
-                    _LOGGER.error("unable to parse json '%s': %s", decoded, ex)
+                    _LOGGER.debug("Unable to parse json '%s': %s", decoded, ex)
+                    raise PayloadDecodeException(
+                        "Unable to parse message payload"
+                    ) from ex
 
         return None
 

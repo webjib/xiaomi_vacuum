@@ -1,21 +1,16 @@
+import inspect
 import logging
 from enum import Enum
+from pprint import pformat as pf
 from typing import Any, Optional  # noqa: F401
 
 import click
 
 from .click_common import DeviceGroupMeta, LiteralParamType, command, format_output
-from .exceptions import DeviceException
+from .exceptions import DeviceInfoUnavailableException, PayloadDecodeException
 from .miioprotocol import MiIOProtocol
 
 _LOGGER = logging.getLogger(__name__)
-
-
-class DeviceType(Enum):
-    """Device type changes the used methods for property getting."""
-
-    MiIO = 0
-    MiOT = 1
 
 
 class UpdateState(Enum):
@@ -27,12 +22,13 @@ class UpdateState(Enum):
 
 class DeviceInfo:
     """Container of miIO device information.
-    Hardware properties such as device model, MAC address, memory information,
-    and hardware and software information is contained here."""
+
+    Hardware properties such as device model, MAC address, memory information, and
+    hardware and software information is contained here.
+    """
 
     def __init__(self, data):
-        """
-        Response of a Xiaomi Smart WiFi Plug
+        """Response of a Xiaomi Smart WiFi Plug.
 
         {'ap': {'bssid': 'FF:FF:FF:FF:FF:FF', 'rssi': -68, 'ssid': 'network'},
          'cfg_time': 0,
@@ -61,9 +57,6 @@ class DeviceInfo:
             self.network_interface["localIp"],
             self.data["token"],
         )
-
-    def __json__(self):
-        return self.data
 
     @property
     def network_interface(self):
@@ -109,12 +102,39 @@ class DeviceInfo:
         return self.data
 
 
+class DeviceStatus:
+    """Base class for status containers.
+
+    All status container classes should inherit from this class. The __repr__
+    implementation returns all defined properties and their values.
+    """
+
+    def __repr__(self):
+        props = inspect.getmembers(self.__class__, lambda o: isinstance(o, property))
+
+        s = f"<{self.__class__.__name__}"
+        for prop_tuple in props:
+            name, prop = prop_tuple
+            try:
+                prop_value = prop.fget(self)
+            except Exception as ex:
+                prop_value = ex.__class__.__name__
+
+            s += f" {name}={prop_value}"
+        s += ">"
+        return s
+
+
 class Device(metaclass=DeviceGroupMeta):
     """Base class for all device implementations.
-    This is the main class providing the basic protocol handling for devices using
-    the ``miIO`` protocol.
-    This class should not be initialized directly but a device-specific class inheriting
-    it should be used instead of it."""
+
+    This is the main class providing the basic protocol handling for devices using the
+    ``miIO`` protocol. This class should not be initialized directly but a device-
+    specific class inheriting it should be used instead of it.
+    """
+
+    retry_count = 3
+    timeout = 5
 
     def __init__(
         self,
@@ -123,16 +143,44 @@ class Device(metaclass=DeviceGroupMeta):
         start_id: int = 0,
         debug: int = 0,
         lazy_discover: bool = True,
+        timeout: int = None,
     ) -> None:
         self.ip = ip
         self.token = token
-        self._protocol = MiIOProtocol(ip, token, start_id, debug, lazy_discover)
-        self.device_type = DeviceType.MiIO
+        timeout = timeout if timeout is not None else self.timeout
+        self._protocol = MiIOProtocol(
+            ip, token, start_id, debug, lazy_discover, timeout
+        )
 
-    def send(self, command: str, parameters: Any = None, retry_count=3) -> Any:
-        return self._protocol.send(command, parameters, retry_count)
+    def send(
+        self,
+        command: str,
+        parameters: Any = None,
+        retry_count: int = None,
+        *,
+        extra_parameters=None,
+    ) -> Any:
+        """Send a command to the device.
+
+        Basic format of the request:
+        {"id": 1234, "method": command, "parameters": parameters}
+
+        `extra_parameters` allows passing elements to the top-level of the request.
+        This is necessary for some devices, such as gateway devices, which expect
+        the sub-device identifier to be on the top-level.
+
+        :param str command: Command to send
+        :param dict parameters: Parameters to send
+        :param int retry_count: How many times to retry on error
+        :param dict extra_parameters: Extra top-level parameters
+        """
+        retry_count = retry_count if retry_count is not None else self.retry_count
+        return self._protocol.send(
+            command, parameters, retry_count, extra_parameters=extra_parameters
+        )
 
     def send_handshake(self):
+        """Send initial handshake to the device."""
         return self._protocol.send_handshake()
 
     @command(
@@ -140,29 +188,39 @@ class Device(metaclass=DeviceGroupMeta):
         click.argument("parameters", type=LiteralParamType(), required=False),
     )
     def raw_command(self, command, parameters):
-        """Send a raw command to the device.
-        This is mostly useful when trying out commands which are not
-        implemented by a given device instance.
+        """Send a raw command to the device. This is mostly useful when trying out
+        commands which are not implemented by a given device instance.
 
         :param str command: Command to send
-        :param dict parameters: Parameters to send"""
-        return self._protocol.send(command, parameters)
+        :param dict parameters: Parameters to send
+        """
+        return self.send(command, parameters)
 
     @command(
         default_output=format_output(
             "",
             "Model: {result.model}\n"
             "Hardware version: {result.hardware_version}\n"
-            "Firmware version: {result.firmware_version}\n"
-            "Network: {result.network_interface}\n"
-            "AP: {result.accesspoint}\n",
+            "Firmware version: {result.firmware_version}\n",
         )
     )
     def info(self) -> DeviceInfo:
         """Get miIO protocol information from the device.
-        This includes information about connected wlan network,
-        and hardware and software versions."""
-        return DeviceInfo(self._protocol.send("miIO.info"))
+
+        This includes information about connected wlan network, and hardware and
+        software versions.
+        """
+        try:
+            return DeviceInfo(self.send("miIO.info"))
+        except PayloadDecodeException as ex:
+            raise DeviceInfoUnavailableException(
+                "Unable to request miIO.info from the device"
+            ) from ex
+
+    @property
+    def raw_id(self):
+        """Return the last used protocol sequence id."""
+        return self._protocol.raw_id
 
     def update(self, url: str, md5: str):
         """Start an OTA update."""
@@ -173,15 +231,15 @@ class Device(metaclass=DeviceGroupMeta):
             "file_md5": md5,
             "proc": "dnld install",
         }
-        return self._protocol.send("miIO.ota", payload)[0] == "ok"
+        return self.send("miIO.ota", payload)[0] == "ok"
 
     def update_progress(self) -> int:
         """Return current update progress [0-100]."""
-        return self._protocol.send("miIO.get_ota_progress")[0]
+        return self.send("miIO.get_ota_progress")[0]
 
     def update_state(self):
         """Return current update state."""
-        return UpdateState(self._protocol.send("miIO.get_ota_state")[0])
+        return UpdateState(self.send("miIO.get_ota_state")[0])
 
     def configure_wifi(self, ssid, password, uid=0, extra_params=None):
         """Configure the wifi settings."""
@@ -189,9 +247,11 @@ class Device(metaclass=DeviceGroupMeta):
             extra_params = {}
         params = {"ssid": ssid, "passwd": password, "uid": uid, **extra_params}
 
-        return self._protocol.send("miIO.config_router", params)[0]
+        return self.send("miIO.config_router", params)[0]
 
-    def get_properties(self, properties, *, max_properties=None):
+    def get_properties(
+        self, properties, *, property_getter="get_prop", max_properties=None
+    ):
         """Request properties in slices based on given max_properties.
 
         This is necessary as some devices have limitation on how many
@@ -203,20 +263,10 @@ class Device(metaclass=DeviceGroupMeta):
         :param int max_properties: Number of properties that can be requested at once.
         :return List of property values.
         """
-        if self.device_type == DeviceType.MiOT:
-            get_property_method = "get_properties"
-        else:
-            get_property_method = "get_prop"
-
         _props = properties.copy()
         values = []
         while _props:
-            try:
-                properties_to_request = _props[:max_properties]
-                values.extend(self.send(get_property_method, properties_to_request))
-            except DeviceException:
-                _LOGGER.error("Unable to request properties %s", properties_to_request)
-                #values.append(["request-failed"] * max_properties)
+            values.extend(self.send(property_getter, _props[:max_properties]))
             if max_properties is None:
                 break
 
@@ -233,3 +283,98 @@ class Device(metaclass=DeviceGroupMeta):
             )
 
         return values
+
+    @command(
+        click.argument("properties", type=str, nargs=-1, required=True),
+    )
+    def test_properties(self, properties):
+        """Helper to test device properties."""
+
+        def ok(x):
+            click.echo(click.style(x, fg="green", bold=True))
+
+        def fail(x):
+            click.echo(click.style(x, fg="red", bold=True))
+
+        try:
+            model = self.info().model
+        except Exception as ex:
+            _LOGGER.warning("Unable to obtain device model: %s", ex)
+            model = "<unavailable>"
+
+        click.echo(f"Testing properties {properties} for {model}")
+        valid_properties = {}
+        max_property_len = max([len(p) for p in properties])
+        for property in properties:
+            try:
+                click.echo(f"Testing {property:{max_property_len+2}} ", nl=False)
+                value = self.get_properties([property])
+                # Handle list responses
+                if isinstance(value, list):
+                    # unwrap single-element lists
+                    if len(value) == 1:
+                        value = value.pop()
+                    # report on unexpected multi-element lists
+                    elif len(value) > 1:
+                        _LOGGER.error("Got an array as response: %s", value)
+                    # otherwise we received an empty list, which we consider here as None
+                    else:
+                        value = None
+
+                if value is None:
+                    fail("None")
+                else:
+                    valid_properties[property] = value
+                    ok(f"{repr(value)} {type(value)}")
+            except Exception as ex:
+                _LOGGER.warning("Unable to request %s: %s", property, ex)
+
+        click.echo(
+            f"Found {len(valid_properties)} valid properties, testing max_properties.."
+        )
+
+        props_to_test = list(valid_properties.keys())
+        max_properties = -1
+        while len(props_to_test) > 1:
+            try:
+                click.echo(
+                    f"Testing {len(props_to_test)} properties at once ({' '.join(props_to_test)}): ",
+                    nl=False,
+                )
+                resp = self.get_properties(props_to_test)
+
+                if len(resp) == len(props_to_test):
+                    max_properties = len(props_to_test)
+                    ok(f"OK for {max_properties} properties")
+                    break
+                else:
+                    removed_property = props_to_test.pop()
+                    fail(
+                        f"Got different amount of properties ({len(props_to_test)}) than requested ({len(resp)}), removing {removed_property}"
+                    )
+
+            except Exception as ex:
+                removed_property = props_to_test.pop()
+                msg = f"Unable to request properties: {ex} - removing {removed_property} for next try"
+                _LOGGER.warning(msg)
+                fail(ex)
+
+        non_empty_properties = {
+            k: v for k, v in valid_properties.items() if v is not None
+        }
+
+        click.echo(
+            click.style("\nPlease copy the results below to your report", bold=True)
+        )
+        click.echo("### Results ###")
+        click.echo(f"Model: {model}")
+        _LOGGER.debug(f"All responsive properties:\n{pf(valid_properties)}")
+        click.echo(f"Total responsives: {len(valid_properties)}")
+        click.echo(f"Total non-empty: {len(non_empty_properties)}")
+        click.echo(f"All non-empty properties:\n{pf(non_empty_properties)}")
+        click.echo(f"Max properties: {max_properties}")
+
+        return "Done"
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__ }: {self.ip} (token: {self.token})>"
