@@ -1,24 +1,15 @@
 vacuum_clean_zone:
   description: Start the cleaning operation in the selected area.
+  target:
+    entity:
+      domain: vacuum
   fields:
     entity_id:
       description: Name of the vacuum entity.
-      example: "vacuum.xiaomi_vacuum_cleaner"
+      example: "vacuum.dreame_d9"
     zone:
       description: Coordinates.
       example: "819,-263,4424,2105"
-    repeats:
-      description: Number of cleaning repeats for each zone between 1 and 3. Does nothing at the moment!.
-      example: "1"
-vacuum_clean_room:
-  description: Start the cleaning operation in the selected room.
-  fields:
-    entity_id:
-      description: Name of the vacuum entity.
-      example: "vacuum.xiaomi_vacuum_cleaner"
-    zone:
-      description:
-      example: ""
     repeats:
       description: Number of cleaning repeats for each zone between 1 and 3. Does nothing at the moment!.
       example: "1"
@@ -27,7 +18,7 @@ vacuum_restricted_zone:
   fields:
     entity_id:
       description: Name of the vacuum entity.
-      example: "vacuum.xiaomi_vacuum_cleaner"
+      example: "vacuum.dreame_d9"
     zone:
       description: Array of coordinates.
       example: '"{"vw":{"line":[],"rect":[[819,-263,4424,2105],[-2001,-3050,-542,515]],"mop":[]}}"'
@@ -36,22 +27,20 @@ vacuum_remote_control_move_step:
   fields:
     entity_id:
       description: Name of the vacuum entity.
-      example: "vacuum.xiaomi_vacuum_cleaner"
+      example: "vacuum.dreame_d9"
     rotation:
       description: Turn in degrees between -179 and 179
       example: "-90"
     velocity:
       description: Distance between 0 and 300.
       example: "200"
-set_water_level:
+
+vacuum_set_water_level:
   description: Set water level for mopping.
   target:
     entity:
       domain: vacuum
   fields:
-    entity_id:
-      description: Name of the vacuum entity.
-      example: "vacuum.xiaomi_vacuum_cleaner"
     water_level:
       description: water level, 1:low, 2:medium, 3:high
       default: "Medium"
@@ -63,7 +52,7 @@ set_water_level:
             - "Medium"
             - "High"
 
-install_voice_pack:
+vacuum_install_voice_pack:
   description: Install official or custom voice pack.
   target:
     entity:
@@ -71,7 +60,7 @@ install_voice_pack:
   fields:
     entity_id:
       description: Name of the vacuum entity.
-      example: "vacuum.xiaomi_vacuum_cleaner"
+      example: "vacuum.dreame_d9"
     lang_id:
       description: "Language ID of this pack"
       example: "DE"

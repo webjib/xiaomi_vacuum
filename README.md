@@ -98,7 +98,7 @@ It is also possible to specify the number of cleaning passes, fan speed, and wat
 
 ## Installing custom voice packs
 
-It is possible to install custom voice packs using `install_voice_pack` service.  
+It is possible to install custom voice packs using `vacuum_install_voice_pack` service.  
 As a template for creating your own voice pack you can use the [default EN voice pack](http://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2009/voices/package/en.tar.gz)
 
 ### Example of install voice pack
@@ -107,7 +107,7 @@ The following service call will install my voice pack named `en-azure.tar.gz` th
 In my experience if the `lang_id` is already available on your device, it will not download the pack again but only change the language to the already downloaded pack. So I used `US` instead of `EN`.
 
 ```yaml
-service: xiaomi_vacuum.install_voice_pack
+service: xiaomi_vacuum.vacuum_install_voice_pack
 data:
   entity_id: vacuum.dreame_d9
   lang_id: US
@@ -151,14 +151,14 @@ data:
 
 ### Current list of services:
 
-- Xiaomi Vacuum: set_water_level
+- Xiaomi Vacuum: vacuum_set_water_level
 - Xiaomi Vacuum: vacuum_reset_filter_life
 - Xiaomi Vacuum: vacuum_reset_main_brush_life
 - Xiaomi Vacuum: vacuum_reset_side_brush_life
-- Xiaomi Vacuum: set_map<sup>1</sup>
+- Xiaomi Vacuum: vacuum_set_map<sup>1</sup>
 - Xiaomi Vacuum: vacuum_clean_room_by_id<sup>1</sup>
 - xiaomi Vacuum: vacuum_clean_zone
-- xiaomi Vacuum: install_voice_pack
+- xiaomi Vacuum: vacuum_install_voice_pack
 - ...
 
 ## Installation
