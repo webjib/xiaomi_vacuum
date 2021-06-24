@@ -519,7 +519,6 @@ class MiroboVacuum(StateVacuumEntity):
     @property
     def device_state_attributes(self):
         """Return the specific state attributes of this vacuum cleaner."""
-        _LOGGER.info("poooooyaaaaaaaa %s)", self._schedule)
         if self.vacuum_state is not None:
             return {
                 ATTR_STATUS: STATE_CODE_TO_STATE[self.vacuum_state],
