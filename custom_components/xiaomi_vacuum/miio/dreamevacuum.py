@@ -14,10 +14,8 @@ _LOGGER = logging.getLogger(__name__)
 _MAPPING: MiotMapping = {
     "device_status": {"siid": 2, "piid": 1},
     "device_fault": {"siid": 2, "piid": 2},
-
     "battery_level": {"siid": 3, "piid": 1},
     "charging_state": {"siid": 3, "piid": 2},
-
     "operating_mode": {"siid": 4, "piid": 1},
     "cleaning_time": {"siid": 4, "piid": 2},
     "cleaning_area": {"siid": 4, "piid": 3},
@@ -25,32 +23,26 @@ _MAPPING: MiotMapping = {
     "water_level": {"siid": 4, "piid": 5},
     "waterbox_status": {"siid": 4, "piid": 6},
     "operation_status": {"siid": 4, "piid": 7},
-
     "dnd_enabled": {"siid": 5, "piid": 1},
     "dnd_start_time": {"siid": 5, "piid": 2},
     "dnd_stop_time": {"siid": 5, "piid": 3},
-
     "audio_volume": {"siid": 7, "piid": 1},
     "audio_language": {"siid": 7, "piid": 2},
-    "set-voice": {"siid":7,"piid":4},
-
+    "set-voice": {"siid": 7, "piid": 4},
     "timezone": {"siid": 8, "piid": 1},
     "scheduled-clean": {"siid": 8, "piid": 2},
-
     "main_brush_left_time": {"siid": 9, "piid": 1},
     "main_brush_life_level": {"siid": 9, "piid": 2},
-
     "side_brush_left_time": {"siid": 10, "piid": 1},
     "side_brush_life_level": {"siid": 10, "piid": 2},
-
     "filter_life_level": {"siid": 11, "piid": 1},
     "filter_left_time": {"siid": 11, "piid": 2},
-
     "first-clean-time": {"siid": 12, "piid": 1},
     "total_clean_time": {"siid": 12, "piid": 2},
     "total_clean_count": {"siid": 12, "piid": 3},
     "total_clean_area": {"siid": 12, "piid": 4},
 }
+
 
 class ChargeStatus(IntEnum):
     Unknown = -1
@@ -106,6 +98,7 @@ class VacuumStatus(IntEnum):
 
 class VacuumSpeed(IntEnum):
     """Fan speeds, same as for ViomiVacuum."""
+
     Unknown = -1
     Silent = 0
     Standard = 1
@@ -115,15 +108,18 @@ class VacuumSpeed(IntEnum):
 
 class Waterbox(IntEnum):
     """Fan speeds, same as for ViomiVacuum."""
+
     Unknown = -1
     Removed = 0
     Present = 1
+
 
 class WaterLevel(IntEnum):
     Unknown = -1
     Low = 1
     Medium = 2
     High = 3
+
 
 class OperationStatus(IntEnum):
     Unknown = -1
@@ -134,7 +130,8 @@ class OperationStatus(IntEnum):
     OperationSpotClean = 4
     OperationFastMapping = 5
 
-class  OperatingMode(IntEnum):
+
+class OperatingMode(IntEnum):
     Unknown = -1
     IdleMode = 0
     PauseAndStopMode = 1
@@ -158,6 +155,7 @@ class  OperatingMode(IntEnum):
     CustomAreaClean = 19
     SpotClean = 20
     FastMapping = 21
+
 
 class DreameVacuumStatus(DeviceStatusContainer):
     def __init__(self, data):
@@ -236,7 +234,9 @@ class DreameVacuumStatus(DeviceStatusContainer):
         try:
             return OperationStatus(self.data["operation_status"])
         except ValueError:
-            _LOGGER.error("Unknown operation_status (%s)", self.data["operation_status"])
+            _LOGGER.error(
+                "Unknown operation_status (%s)", self.data["operation_status"]
+            )
             return OperationStatus.Unknown
 
     @property
@@ -337,7 +337,7 @@ class DreameVacuum(MiotDevice):
 
     @command(click.argument("speed", type=int))
     def set_fan_speed(self, speed):
-        return self.set_property("cleaning_mode",speed)
+        return self.set_property("cleaning_mode", speed)
 
     # siid 3: (Battery): 2 props, 1 actions
     # aiid 1 Start Charge: in: [] -> out: []
@@ -402,7 +402,6 @@ class DreameVacuum(MiotDevice):
         payload = [{"piid": 1, "value": 21}]
         return self.call_action(4, 1, payload)
 
-
     @command(click.argument("coords", type=str))
     def zone_cleanup(self, coords) -> None:
         """Start zone cleaning."""
@@ -410,9 +409,8 @@ class DreameVacuum(MiotDevice):
         return self.call_action(4, 1, payload)
         # # siid 21: (remote): 2 props, 3 actions
 
-
     # @command(click.argument("coords", type=str, ""))
-    def room_cleanup_by_id(self, rooms, repeats,clean_mode,mop_mode) -> None:
+    def room_cleanup_by_id(self, rooms, repeats, clean_mode, mop_mode) -> None:
         """Start room-id cleaning."""
         # clean_mode = 3
         # mop_mode = 3
@@ -424,13 +422,27 @@ class DreameVacuum(MiotDevice):
                 clean_mode = sublist[2]
             if len(sublist) > 3:
                 mop_mode = sublist[3]
-            cleanlist.append([ ord(sublist[0].upper()) - 64, repeats, clean_mode, mop_mode, rooms.index(sublist) + 1 ])
-        payload = [{"piid": 1, "value": 18}, {"piid": 10, "value": "{\"selects\": " + str(cleanlist).replace(' ','') + "}"  }]
+            cleanlist.append(
+                [
+                    ord(sublist[0].upper()) - 64,
+                    repeats,
+                    clean_mode,
+                    mop_mode,
+                    rooms.index(sublist) + 1,
+                ]
+            )
+        payload = [
+            {"piid": 1, "value": 18},
+            {
+                "piid": 10,
+                "value": '{"selects": ' + str(cleanlist).replace(" ", "") + "}",
+            },
+        ]
         return self.call_action(4, 1, payload)
 
     @command(click.argument("coords", type=str))
     def restricted_zone(self, coords) -> None:
-        """Create restricted/mop zone """
+        """Create restricted/mop zone"""
         payload = [{"piid": 4, "value": coords}]
         return self.call_action(6, 2, payload)
 
@@ -438,12 +450,20 @@ class DreameVacuum(MiotDevice):
     def manual_control_once(self, rotation, velocity) -> None:
         siid = 4
         piid = 15
-        payload = [{
-            "did": f"call-{siid}-{piid}",
-            "siid": 4,
-            "piid": 15,
-            "value": "{\"spdv\": " + str(velocity) + ",\"spdw\": " + str(rotation) + ",\"audio\":\"false\",\"random\": " + str(randint(1000, 9999)) + "}"
-        }]
+        payload = [
+            {
+                "did": f"call-{siid}-{piid}",
+                "siid": 4,
+                "piid": 15,
+                "value": '{"spdv": '
+                + str(velocity)
+                + ',"spdw": '
+                + str(rotation)
+                + ',"audio":"false","random": '
+                + str(randint(1000, 9999))
+                + "}",
+            }
+        ]
         return self.send("set_properties", payload)
 
     # siid 6: (map): 6 props, 2 actions
@@ -455,13 +475,18 @@ class DreameVacuum(MiotDevice):
     # aiid 2: (set-map)
     @command()
     def set_map(self, map_id) -> None:
-        payload = [{"piid": 4, "value": "{\"sm\": " + "{" + "}" + ", \"mapid\":" + str(map_id) + "}"}]
+        payload = [
+            {
+                "piid": 4,
+                "value": '{"sm": ' + "{" + "}" + ', "mapid":' + str(map_id) + "}",
+            }
+        ]
         return self.call_action(6, 2, payload)
 
     @command(click.argument("water", type=int))
     def set_water_level(self, water):
         """Set water level"""
-        return self.set_property("water_level",water)
+        return self.set_property("water_level", water)
 
     # siid 7: (audio): 4 props, 2 actions
     # aiid 1: in: [] -> out: []
@@ -472,12 +497,18 @@ class DreameVacuum(MiotDevice):
 
     # aiid 2 : in: [] -> out: []
     @command()
-    def install_voice_pack(self,lang_id:str,url:str,md5:str,size:int) -> None:
+    def install_voice_pack(self, lang_id: str, url: str, md5: str, size: int) -> None:
         """Install given voice pack."""
-        value='{\"id\":\"%(lang_id)s\",\"url\":\"%(url)s\",\"md5\":\"%(md5)s\",\"size\":%(size)d}' % {"lang_id": lang_id, "url": url,"md5":md5,"size":size }
-        _LOGGER.info("pooya: "+value)
-        self.set_property("set-voice",'{\"id\":\"%(lang_id)s\",\"url\":\"%(url)s\",\"md5\":\"%(md5)s\",\"size\":%(size)d}' % {"lang_id": lang_id, "url": url,"md5":md5,"size":size })
-
+        value = (
+            '{"id":"%(lang_id)s","url":"%(url)s","md5":"%(md5)s","size":%(size)d}'
+            % {"lang_id": lang_id, "url": url, "md5": md5, "size": size}
+        )
+        _LOGGER.info("pooya: " + value)
+        self.set_property(
+            "set-voice",
+            '{"id":"%(lang_id)s","url":"%(url)s","md5":"%(md5)s","size":%(size)d}'
+            % {"lang_id": lang_id, "url": url, "md5": md5, "size": size},
+        )
 
     # aiid 2: in: [] -> out: []
     @command()

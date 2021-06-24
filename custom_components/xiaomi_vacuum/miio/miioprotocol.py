@@ -259,7 +259,7 @@ class MiIOProtocol:
     @property
     def _id(self) -> int:
         """Increment and return the sequence id."""
-        self.__id += random.randint(1,1000)
+        self.__id += random.randint(1, 1000)
         return self.__id
 
     @property
