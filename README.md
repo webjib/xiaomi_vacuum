@@ -9,11 +9,14 @@ Using https://github.com/rytilahti/python-miio for the communication protocol.
   - [Room cleaning support](#room-cleaning-support)
     - [Example of cleaning schedule:](#example-of-cleaning-schedule)
     - [Example of calling room cleaning service:](#example-of-calling-room-cleaning-service)
+  - [Installing custom voice packs](#installing-custom-voice-packs)
+    - [Example of install voice pack](#example-of-install-voice-pack)
   - [Developement Status](#developement-status)
     - [Current list of attributes:](#current-list-of-attributes)
     - [Current list of services:](#current-list-of-services)
   - [Installation](#installation)
   - [Lovelace Card](#lovelace-card)
+
 ## Room cleaning support
 
 To use single room cleaning features (marked with <sup>1</sup> ), you need to create a schedule in `MiHome` app, which you can disable (but do not remove).  
@@ -22,10 +25,12 @@ Do not choose `All` when creating the cleaning schedule.
 Select rooms one by one, and afterwards this integration can get a list of your rooms.
 
 ### Example of cleaning schedule:
+
 In the following examples the selected rooms will show up in the same order. Other information, like time, speed, etc. is irrelevant.  
 ![Example Schedule](docs/schedule-example.jpg)
 
 The resulting Homeassistant room list attribute:
+
 ```yaml
 room_list:
   map_id_0:
@@ -35,7 +40,9 @@ room_list:
     - C
     - A
 ```
+
 Which means:
+
 - B &#8594; Bedroom
 - E &#8594; Living Room
 - D &#8594; Office
@@ -43,6 +50,7 @@ Which means:
 - A &#8594; Kitchen
 
 ### Example of calling room cleaning service:
+
 After the above step is done, room cleaning service can be called.
 
 For example Cleaning the kitchen with `Two` passes, `Turbo` fan speed, and `High` water leve.
@@ -50,34 +58,34 @@ For example Cleaning the kitchen with `Two` passes, `Turbo` fan speed, and `High
 As action in `vacuum-card´:
 
 ```yaml
-...
-  - name: Clean Kitchen
-    icon: svg:kitchen
-    service: xiaomi_vacuum.vacuum_clean_room_by_id
-    service_data:
-      entity_id: vacuum.dreame_d9
-      rooms:
-        - A
-      repeats: 2
-      clean_mode: 4
-      mop_mode: 3
-...
+---
+- name: Clean Kitchen
+  icon: svg:kitchen
+  service: xiaomi_vacuum.vacuum_clean_room_by_id
+  service_data:
+    entity_id: vacuum.dreame_d9
+    rooms:
+      - A
+    repeats: 2
+    clean_mode: 4
+    mop_mode: 3
 ```
 
 As service call:
-``` yaml
-  - service: xiaomi_vacuum.vacuum_clean_room_by_id
-    data:
-      entity_id: vacuum.dreame_d9
-      rooms: ['A']
-      repeats: 2
-      clean_mode: 4
-      mop_mode: 3
+
+```yaml
+- service: xiaomi_vacuum.vacuum_clean_room_by_id
+  data:
+    entity_id: vacuum.dreame_d9
+    rooms: ["A"]
+    repeats: 2
+    clean_mode: 4
+    mop_mode: 3
 ```
 
 It is also possible to specify the number of cleaning passes, fan speed, and water level for each room independently:
 
-``` yaml
+```yaml
   - service: xiaomi_vacuum.vacuum_clean_room_by_id
     data:
       entity_id: vacuum.dreame_d9
@@ -85,6 +93,26 @@ It is also possible to specify the number of cleaning passes, fan speed, and wat
       repeats: 2  >>> this will get override with this syntax
       clean_mode: 2. >>> this will get override with this syntax
       mop_mode: 2 >>> this will get override with this syntax
+```
+
+## Installing custom voice packs
+
+It is possible to install custom voice packs using `install_voice_pack` service.  
+As a template for creating your own voice pack you can use the [default EN voice pack](http://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2009/voices/package/en.tar.gz)
+
+### Example of install voice pack
+
+The following service call will install my voice pack named `en-azure.tar.gz` that I hosted localy on my development machine.  
+In my experience if the `lang_id` is already available on your device, it will not download the pack again but only change the language to the already downloaded pack. So I used `US` instead of `EN`.
+
+```yaml
+service: xiaomi_vacuum.install_voice_pack
+data:
+  entity_id: vacuum.dreame_d9
+  lang_id: US
+  url: http://192.168.31.176/en-azure.tar.gz
+  md5: afee12651d96d26be46d898f647e8f0f
+  size: 2532057
 ```
 
 ## Developement Status
@@ -128,7 +156,8 @@ It is also possible to specify the number of cleaning passes, fan speed, and wat
 - Xiaomi Vacuum: vacuum_reset_side_brush_life
 - Xiaomi Vacuum: set_map<sup>1</sup>
 - Xiaomi Vacuum: vacuum_clean_room_by_id<sup>1</sup>
-- xiaomi Vacuum: Xiaomi Vacuum: vacuum_clean_zone
+- xiaomi Vacuum: vacuum_clean_zone
+- xiaomi Vacuum: install_voice_pack
 - ...
 
 ## Installation
@@ -149,7 +178,6 @@ vacuum:
 ```
 
 To retrieve the token, follow the default integration <a href="https://www.home-assistant.io/integrations/vacuum.xiaomi_miio/#retrieving-the-access-token">instructions</a>.
-
 
 ## Lovelace Card
 

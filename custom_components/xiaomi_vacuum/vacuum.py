@@ -70,6 +70,10 @@ ATTR_DND_STOP_TIME = "dnd_stop"
 ATTR_AUDIO_LANGUAGE = "audio_language"
 ATTR_AUDIO_VOLUME = "audio_volume"
 ATTR_TIMEZONE = "timezone"
+ATTR_LANGUAGE_ID = "lang_id"
+ATTR_URL = "url"
+ATTR_MD5 = "md5"
+ATTR_SIZE = "size"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
 SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
@@ -82,6 +86,7 @@ SERVICE_RESET_BRUSH_LIFE = "vacuum_reset_main_brush_life"
 SERVICE_RESET_BRUSH_LIFE2 = "vacuum_reset_side_brush_life"
 SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
 SERVICE_WATER_LEVEL = "set_water_level"
+SERVICE_INSTALL_VOICE_PACK = "install_voice_pack"
 
 INPUT_RC_DURATION = "duration"
 INPUT_RC_ROTATION = "rotation"
@@ -395,6 +400,17 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         MiroboVacuum.async_set_water_level.__name__,
     )
 
+    platform.async_register_entity_service(
+        SERVICE_INSTALL_VOICE_PACK,
+        {
+            vol.Required(ATTR_LANGUAGE_ID): cv.string,
+            vol.Required(ATTR_URL): cv.string,
+            vol.Required(ATTR_MD5): cv.string,
+            vol.Required(ATTR_SIZE): cv.positive_int,
+            },
+        MiroboVacuum.async_install_voice_pack.__name__,
+    )
+
 class MiroboVacuum(StateVacuumEntity):
     """Representation of a Xiaomi Vacuum cleaner robot."""
 
@@ -694,6 +710,9 @@ class MiroboVacuum(StateVacuumEntity):
         await self._try_command(
             "Unable to set water level: %s", self._vacuum.set_water_level, water_level)
 
+    async def async_install_voice_pack(self,lang_id,url,md5,size, **kwargs):
+        """install a custom language pack"""
+        await self._try_command("Unable to install language pack: %s", self._vacuum.install_voice_pack, lang_id, url, md5, size)
 
     def update(self):
         """Fetch state from the device."""

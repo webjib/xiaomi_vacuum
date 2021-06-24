@@ -6,7 +6,7 @@ vacuum_clean_zone:
       example: "vacuum.xiaomi_vacuum_cleaner"
     zone:
       description: Coordinates.
-      example: '819,-263,4424,2105'
+      example: "819,-263,4424,2105"
     repeats:
       description: Number of cleaning repeats for each zone between 1 and 3. Does nothing at the moment!.
       example: "1"
@@ -18,7 +18,7 @@ vacuum_clean_room:
       example: "vacuum.xiaomi_vacuum_cleaner"
     zone:
       description:
-      example: ''
+      example: ""
     repeats:
       description: Number of cleaning repeats for each zone between 1 and 3. Does nothing at the moment!.
       example: "1"
@@ -39,10 +39,10 @@ vacuum_remote_control_move_step:
       example: "vacuum.xiaomi_vacuum_cleaner"
     rotation:
       description: Turn in degrees between -179 and 179
-      example: '-90'
+      example: "-90"
     velocity:
       description: Distance between 0 and 300.
-      example: '200'
+      example: "200"
 set_water_level:
   description: Set water level for mopping.
   target:
@@ -62,3 +62,29 @@ set_water_level:
             - "Low"
             - "Medium"
             - "High"
+
+install_voice_pack:
+  description: Install official or custom voice pack.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.xiaomi_vacuum_cleaner"
+    lang_id:
+      description: "Language ID of this pack"
+      example: "DE"
+      required: true
+    url:
+      description: "Url of this pack it should be reachable by the vacuum bot"
+      example: "http://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2009/voices/package/deyu.tar.gz"
+      required: true
+    md5:
+      description: "MD5 checksum of the language pack"
+      example: "d25986c1f608c0897475707e77d856f9"
+      required: true
+    size:
+      description: "Size of the language pack in bytes"
+      example: 4067845
+      required: true

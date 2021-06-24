@@ -32,6 +32,7 @@ _MAPPING: MiotMapping = {
 
     "audio_volume": {"siid": 7, "piid": 1},
     "audio_language": {"siid": 7, "piid": 2},
+    "set-voice": {"siid":7,"piid":4},
 
     "timezone": {"siid": 8, "piid": 1},
     "scheduled-clean": {"siid": 8, "piid": 2},
@@ -471,15 +472,12 @@ class DreameVacuum(MiotDevice):
 
     # aiid 2 : in: [] -> out: []
     @command()
-    def install_voice_pack(self) -> None:
+    def install_voice_pack(self,lang_id:str,url:str,md5:str,size:int) -> None:
         """Install given voice pack."""
-        payload = [{
-            "did": "<myID>",
-            "siid": 7,
-            "piid": 4,
-            "value": "{\"id\":\"EN\",\"url\":\"http://192.168.1.6:8123/local/dreame.vacuum.p2009_en.tar.gz\",\"md5\":\"d2287d7d125748bace8d0778b7df119c\",\"size\":1156119}"
-        }]
-        return self.send("set_properties", payload)
+        value='{\"id\":\"%(lang_id)s\",\"url\":\"%(url)s\",\"md5\":\"%(md5)s\",\"size\":%(size)d}' % {"lang_id": lang_id, "url": url,"md5":md5,"size":size }
+        _LOGGER.info("pooya: "+value)
+        self.set_property("set-voice",'{\"id\":\"%(lang_id)s\",\"url\":\"%(url)s\",\"md5\":\"%(md5)s\",\"size\":%(size)d}' % {"lang_id": lang_id, "url": url,"md5":md5,"size":size })
+
 
     # aiid 2: in: [] -> out: []
     @command()
