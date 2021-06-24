@@ -16,6 +16,7 @@ Using https://github.com/rytilahti/python-miio for the communication protocol.
     - [Current list of services:](#current-list-of-services)
   - [Installation](#installation)
   - [Lovelace Card](#lovelace-card)
+  - [Credit and Contribution](#credit-and-contribution)
 
 ## Room cleaning support
 
@@ -185,3 +186,11 @@ This integration also works with https://github.com/denysdovhan/vacuum-card
 
 Here is an example of modified version of vacuum-card:  
 ![Lovelace Card](docs/card.jpg)
+
+## Credit and Contribution
+
+Thanks to the following people whitout them I could not do this.  
+[python-miio by @rytilahti](https://github.com/rytilahti/python-miio) used for communicating with the device.  
+[xiaomi_vacuum by @microfrost1](https://github.com/microfrost1/xiaomi_vacuum) used as basis of this fork.  
+[xiaomi_vacuum by @Concentricc](https://github.com/Concentricc/xiaomi_vacuum) original xiaomi:vacuum for Vacuum 1C.  
+[@need2buy](https://github.com/rytilahti/python-miio/issues/870#issuecomment-850623325) for implementing the room cleaning feature and helping me.
