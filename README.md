@@ -1,7 +1,96 @@
-# xiaomi_vacuum [WIP]
-A custom component for Dreame Vacuum Robot D9 (dreame.vacuum.p2009).
+# xiaomi_vacuum (Dreame D9) integration for Homeassistant
 
-Current list of attributes:
+A custom component for Dreame Vacuum Robot D9 (dreame.vacuum.p2009) with support for features such as consumables' lifespan, water level, room and zone cleaning, etc.  
+This integration should also work for Dreame Vacuum Robot F9 (dreame.vacuum.p2008).
+
+Using https://github.com/rytilahti/python-miio for the communication protocol.
+
+- [xiaomi_vacuum (Dreame D9) integration for Homeassistant](#xiaomi_vacuum-dreame-d9-integration-for-homeassistant)
+  - [Room cleaning support](#room-cleaning-support)
+    - [Example of cleaning schedule:](#example-of-cleaning-schedule)
+    - [Example of calling room cleaning service:](#example-of-calling-room-cleaning-service)
+  - [Developement Status](#developement-status)
+    - [Current list of attributes:](#current-list-of-attributes)
+    - [Current list of services:](#current-list-of-services)
+  - [Installation](#installation)
+  - [Lovelace Card](#lovelace-card)
+## Room cleaning support
+
+To use single room cleaning features (marked with <sup>1</sup> ), you need to create a schedule in `MiHome` app, which you can disable (but do not remove).  
+Select the rooms you want to be displayed in HA.  
+Do not choose `All` when creating the cleaning schedule.  
+Select rooms one by one, and afterwards this integration can get a list of your rooms.
+
+### Example of cleaning schedule:
+In the following examples the selected rooms will show up in the same order. Other information, like time, speed, etc. is irrelevant.  
+![Example Schedule](docs/schedule-example.jpg)
+
+The resulting Homeassistant room list attribute:
+```yaml
+room_list:
+  map_id_0:
+    - B
+    - E
+    - D
+    - C
+    - A
+```
+Which means:
+- B &#8594; Bedroom
+- E &#8594; Living Room
+- D &#8594; Office
+- C &#8594; Corridor
+- A &#8594; Kitchen
+
+### Example of calling room cleaning service:
+After the above step is done, room cleaning service can be called.
+
+For example Cleaning the kitchen with `Two` passes, `Turbo` fan speed, and `High` water leve.
+
+As action in `vacuum-card´:
+
+```yaml
+...
+  - name: Clean Kitchen
+    icon: svg:kitchen
+    service: xiaomi_vacuum.vacuum_clean_room_by_id
+    service_data:
+      entity_id: vacuum.dreame_d9
+      rooms:
+        - A
+      repeats: 2
+      clean_mode: 4
+      mop_mode: 3
+...
+```
+
+As service call:
+``` yaml
+  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+    data:
+      entity_id: vacuum.dreame_d9
+      rooms: ['A']
+      repeats: 2
+      clean_mode: 4
+      mop_mode: 3
+```
+
+It is also possible to specify the number of cleaning passes. fan speed, and water level
+
+``` yaml
+  - service: xiaomi_vacuum.vacuum_clean_room_by_id
+    data:
+      entity_id: vacuum.dreame_d9
+      rooms: [[ 'A', 2, 4, 3][ 'B', 1, 2, 3]]
+      repeats: 2  >>> this will get override with this syntax
+      clean_mode: 2. >>> this will get override with this syntax
+      mop_mode: 2 >>> this will get override with this syntax
+```
+
+## Developement Status
+
+### Current list of attributes:
+
 - fan_speed_list
 - battery_level
 - battery_icon
@@ -31,29 +120,26 @@ Current list of attributes:
 - map_id_list<sup>1</sup>
 - room_list<sup>1</sup>
 
-Current list of services:
+### Current list of services:
+
 - Xiaomi Vacuum: set_water_level
 - Xiaomi Vacuum: vacuum_reset_filter_life
 - Xiaomi Vacuum: vacuum_reset_main_brush_life
 - Xiaomi Vacuum: vacuum_reset_side_brush_life
-- Xiaomi Vacuum: set_map
+- Xiaomi Vacuum: set_map<sup>1</sup>
 - Xiaomi Vacuum: vacuum_clean_room_by_id<sup>1</sup>
 - xiaomi Vacuum: Xiaomi Vacuum: vacuum_clean_zone
 - ...
 
-Note: To use features marked with <sup>1</sup>, you need to create a schedule in `MiHome` app, which you can disable (but do not remove).  
-Select the rooms you want to be displayed in HA.  
-Do not choose `All` when creating the cleaning schedule.  
-Select rooms one by one, and afterwards this integration can get a list of your rooms.  
-
-
-Using https://github.com/rytilahti/python-miio for the protocol.
+## Installation
 
 Two possibilities for installation :
+
 - Manually : add the "xiaomi_vacuum" folder to the /config/custom_components folder ; reboot
 - With HACS : go in HACS, click on Integrations, click on the three little dots at top of the screen and selection "custom repositories", add this github url, select "Integration" as repository, and click ADD. Then go to the Integrations tab of HACS, and install the "Dreame Vacuum Robot D9" integration.
 
 Code to add to configuration.yaml :
+
 ```
 vacuum:
   - platform: xiaomi_vacuum
@@ -61,6 +147,13 @@ vacuum:
     token: "<token>"
     name: <name>
 ```
+
 To retrieve the token, follow the default integration <a href="https://www.home-assistant.io/integrations/vacuum.xiaomi_miio/#retrieving-the-access-token">instructions</a>.
 
-Works with https://github.com/denysdovhan/vacuum-card
+
+## Lovelace Card
+
+This integration also works with https://github.com/denysdovhan/vacuum-card
+
+Here is an example of modified version of vacuum-card:  
+![Lovelace Card](docs/card.jpg)
