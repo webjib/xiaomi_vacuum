@@ -75,7 +75,7 @@ As service call:
       mop_mode: 3
 ```
 
-It is also possible to specify the number of cleaning passes. fan speed, and water level
+It is also possible to specify the number of cleaning passes, fan speed, and water level for each room independently:
 
 ``` yaml
   - service: xiaomi_vacuum.vacuum_clean_room_by_id
