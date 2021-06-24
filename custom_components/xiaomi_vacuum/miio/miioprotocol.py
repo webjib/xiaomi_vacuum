@@ -7,6 +7,7 @@ import binascii
 import codecs
 import logging
 import socket
+import random
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
@@ -258,9 +259,7 @@ class MiIOProtocol:
     @property
     def _id(self) -> int:
         """Increment and return the sequence id."""
-        self.__id += 1
-        if self.__id >= 9999:
-            self.__id = 1
+        self.__id += random.randint(1,1000)
         return self.__id
 
     @property
