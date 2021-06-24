@@ -3,8 +3,6 @@
 A custom component for Dreame Vacuum Robot D9 (dreame.vacuum.p2009) with support for features such as consumables' lifespan, water level, room and zone cleaning, etc.  
 This integration should also work for Dreame Vacuum Robot F9 (dreame.vacuum.p2008).
 
-Using https://github.com/rytilahti/python-miio for the communication protocol.
-
 - [xiaomi_vacuum (Dreame D9) integration for Homeassistant](#xiaomi_vacuum-dreame-d9-integration-for-homeassistant)
   - [Room cleaning support](#room-cleaning-support)
     - [Example of cleaning schedule:](#example-of-cleaning-schedule)
