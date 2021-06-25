@@ -151,6 +151,7 @@ data:
 - water_level: high
 - water_level_list
 - clean_cloth_tip
+- serial_number
 - map_id_list<sup>1</sup>
 - room_list<sup>1</sup>
 
