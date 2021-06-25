@@ -29,6 +29,7 @@ _MAPPING: MiotMapping = {
     "property_water_level": {"siid": 4, "piid": 5},
     "property_waterbox_status": {"siid": 4, "piid": 6},
     "property_operation_status": {"siid": 4, "piid": 7},
+    "property_serial_number": {"siid": 4, "piid": 14},
     "property_clean_cloth_tip": {"siid": 4, "piid": 16},
     "action_start_sweeping_advanced": {"siid": 4, "aiid": 1},
     "action_stop_sweeping": {"siid": 4, "aiid": 2},
@@ -347,6 +348,9 @@ class DreameVacuumStatus(DeviceStatusContainer):
     def clean_cloth_tip(self) -> str:
         return self.data["property_clean_cloth_tip"]
 
+    @property
+    def serial_number(self) -> str:
+        return self.data["property_serial_number"]
 
 class DreameVacuum(MiotDevice):
     """Support for dreame vacuum robot d9 (dreame.vacuum.p2009)."""

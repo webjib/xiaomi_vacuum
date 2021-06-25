@@ -79,6 +79,7 @@ ATTR_AUDIO_LANGUAGE = "audio_language"
 ATTR_AUDIO_VOLUME = "audio_volume"
 ATTR_TIMEZONE = "timezone"
 ATTR_CLEAN_CLOTH_TIP = "clean_cloth_tip"
+ATTR_SERIAL_NUMBER = "serial_number"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
 SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
@@ -477,6 +478,8 @@ class MiroboVacuum(StateVacuumEntity):
 
         self._clean_cloth_tip = None
 
+        self._serial_number = None
+
     @property
     def name(self):
         """Return the name of the device."""
@@ -578,6 +581,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
                 ATTR_CLEANING_TOTAL_AREA: self._total_clean_area,
                 ATTR_CLEAN_CLOTH_TIP: self._clean_cloth_tip,
+                ATTR_SERIAL_NUMBER: self._serial_number,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(
                     self._current_water_level, "Unknown"
                 ),
@@ -835,6 +839,8 @@ class MiroboVacuum(StateVacuumEntity):
             self._timezone = state.timezone
 
             self._clean_cloth_tip = state.clean_cloth_tip
+
+            self._serial_number = state.serial_number
 
         except OSError as exc:
             _LOGGER.error("Got OSError while fetching the state: %s", exc)
