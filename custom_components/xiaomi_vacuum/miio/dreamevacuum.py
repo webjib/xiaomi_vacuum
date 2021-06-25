@@ -36,8 +36,8 @@ _MAPPING: MiotMapping = {
     "property_dnd_start_time": {"siid": 5, "piid": 2},
     "property_dnd_stop_time": {"siid": 5, "piid": 3},
     ## Map
-    "action_req_map": {"siid": 6, "piid": 1},
-    "action_set_map": {"siid": 6, "piid": 2},
+    "action_req_map": {"siid": 6, "aiid": 1},
+    "action_set_map": {"siid": 6, "aiid": 2},
     ## Audio
     "property_audio_volume": {"siid": 7, "piid": 1},
     "property_audio_language": {"siid": 7, "piid": 2},
