@@ -13,8 +13,12 @@ vacuum_clean_zone:
     repeats:
       description: Number of cleaning repeats for each zone between 1 and 3. Does nothing at the moment!.
       example: "1"
-vacuum_restricted_zone:
-  description: Start the cleaning operation in the selected area.
+
+vacuum_set_restricted_zone:
+  description: Define a restricted zone.
+  target:
+    entity:
+      domain: vacuum
   fields:
     entity_id:
       description: Name of the vacuum entity.
@@ -22,8 +26,12 @@ vacuum_restricted_zone:
     zone:
       description: Array of coordinates.
       example: '"{"vw":{"line":[],"rect":[[819,-263,4424,2105],[-2001,-3050,-542,515]],"mop":[]}}"'
+
 vacuum_remote_control_move_step:
-  description: Start the cleaning operation in the selected area.
+  description: Remotely control the vacuum bot.
+  target:
+    entity:
+      domain: vacuum
   fields:
     entity_id:
       description: Name of the vacuum entity.

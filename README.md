@@ -3,7 +3,9 @@
 A custom component for Dreame Vacuum Robot D9 (dreame.vacuum.p2009) with support for features such as consumables' lifespan, water level, room and zone cleaning, etc.  
 This integration should also work for Dreame Vacuum Robot F9 (dreame.vacuum.p2008).
 
-- [xiaomi_vacuum (Dreame D9) integration for Homeassistant](#xiaomi_vacuum-dreame-d9-integration-for-homeassistant)
+> :warning: This is WIP. I'm still refactoring and cleaning up the code so some things might change, for the better :)
+
+- [xiaomi_vacuum (Dreame D9) integration for Homeassistant[WIP]](#xiaomi_vacuum-dreame-d9-integration-for-homeassistantwip)
   - [Room cleaning support](#room-cleaning-support)
     - [Example of cleaning schedule:](#example-of-cleaning-schedule)
     - [Example of calling room cleaning service:](#example-of-calling-room-cleaning-service)
@@ -21,7 +23,8 @@ This integration should also work for Dreame Vacuum Robot F9 (dreame.vacuum.p200
 To use single room cleaning features (marked with <sup>1</sup> ), you need to create a schedule in `MiHome` app, which you can disable (but do not remove).  
 Select the rooms you want to be displayed in HA.  
 Do not choose `All` when creating the cleaning schedule.  
-Select rooms one by one, and afterwards this integration can get a list of your rooms.
+Select rooms one by one, and afterwards this integration can get a list of your rooms.  
+If you have multiple maps create a schedule for each map. Afterwards you can also switch between the maps using this integration's `select_map` service
 
 ### Example of cleaning schedule:
 
@@ -153,11 +156,11 @@ data:
 - Xiaomi Vacuum: vacuum_reset_filter_life
 - Xiaomi Vacuum: vacuum_reset_main_brush_life
 - Xiaomi Vacuum: vacuum_reset_side_brush_life
-- Xiaomi Vacuum: vacuum_set_map<sup>1</sup>
+- Xiaomi Vacuum: vacuum_select_map<sup>1</sup>
 - Xiaomi Vacuum: vacuum_clean_room_by_id<sup>1</sup>
 - xiaomi Vacuum: vacuum_clean_zone
+- xiaomi Vacuum: vacuum_set_restricted_zone
 - xiaomi Vacuum: vacuum_install_voice_pack
-- ...
 
 ## Installation
 
@@ -191,4 +194,4 @@ Thanks to the following people whitout them I could not do this.
 [python-miio by @rytilahti](https://github.com/rytilahti/python-miio) used for communicating with the device.  
 [xiaomi_vacuum by @microfrost1](https://github.com/microfrost1/xiaomi_vacuum) used as basis of this fork.  
 [xiaomi_vacuum by @Concentricc](https://github.com/Concentricc/xiaomi_vacuum) original xiaomi:vacuum for Vacuum 1C.  
-[@need2buy](https://github.com/rytilahti/python-miio/issues/870#issuecomment-850623325) for implementing the room cleaning feature and helping me.
+[@need2buy](https://github.com/rytilahti/python-miio/issues/870#issuecomment-850623325) for original implementation of room cleaning feature and helping me get started.

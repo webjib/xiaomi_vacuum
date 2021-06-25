@@ -87,8 +87,8 @@ SERVICE_FAST_MAP = "vacuum_fast_map"
 SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
 SERVICE_CLEAN_ROOM_BY_ID = "vacuum_clean_room_by_id"
-SERVICE_SET_MAP = "vacuum_set_map"
-SERVICE_RESTRICTED_ZONE = "vacuum_restricted_zone"
+SERVICE_SELECT_MAP = "vacuum_select_map"
+SERVICE_SET_RESTRICTED_ZONE = "vacuum_set_restricted_zone"
 SERVICE_RESET_FILTER_LIFE = "vacuum_reset_filter_life"
 SERVICE_RESET_BRUSH_LIFE = "vacuum_reset_main_brush_life"
 SERVICE_RESET_BRUSH_LIFE2 = "vacuum_reset_side_brush_life"
@@ -321,11 +321,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     )
 
     platform.async_register_entity_service(
-        SERVICE_SET_MAP,
+        SERVICE_SELECT_MAP,
         {
             vol.Optional(INPUT_MAP_ID): cv.positive_int,
         },
-        MiroboVacuum.async_set_map.__name__,
+        MiroboVacuum.async_select_map.__name__,
     )
 
     platform.async_register_entity_service(
@@ -354,14 +354,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     )
 
     platform.async_register_entity_service(
-        SERVICE_RESTRICTED_ZONE,
+        SERVICE_SET_RESTRICTED_ZONE,
         {
             vol.Required(INPUT_ZONE_ARRAY): cv.string,
-            vol.Required(INPUT_ZONE_REPEATER): vol.All(
-                vol.Coerce(int), vol.Clamp(min=1, max=3)
-            ),
         },
-        MiroboVacuum.async_restricted_zone.__name__,
+        MiroboVacuum.async_set_restricted_zone.__name__,
     )
 
     platform.async_register_entity_service(
@@ -633,7 +630,7 @@ class MiroboVacuum(StateVacuumEntity):
 
     async def async_locate(self, **kwargs):
         """Locate the vacuum cleaner."""
-        await self._try_command("Unable to locate the botvac: %s", self._vacuum.find)
+        await self._try_command("Unable to locate the botvac: %s", self._vacuum.locate)
 
     async def async_start(self):
         """Start or resume the cleaning task."""
@@ -643,79 +640,71 @@ class MiroboVacuum(StateVacuumEntity):
 
     async def async_stop(self, **kwargs):
         """Stop the vacuum cleaner."""
-        await self._try_command("Unable to stop: %s", self._vacuum.stop)
+        await self._try_command("Unable to stop: %s", self._vacuum.stop_sweeping)
 
     async def async_clean_zone(self, zone):
         """Clean selected area."""
-        try:
-            await self.hass.async_add_executor_job(self._vacuum.zone_cleanup, zone)
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error("Unable to send zoned_clean command to the vacuum: %s", exc)
+        await self._try_command(
+            "Unable to send zoned_clean command to the vacuum: %s",
+            self._vacuum.zone_cleanup,
+            zone,
+        )
 
     async def async_clean_room_by_id(self, rooms, repeats, clean_mode, mop_mode):
         """Clean selected room using id."""
-        try:
-            await self.hass.async_add_executor_job(
-                self._vacuum.room_cleanup_by_id, rooms, repeats, clean_mode, mop_mode
-            )
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error(
-                "Unable to send room_cleanup_by_id command to the vacuum: %s", exc
-            )
+        await self._try_command(
+            "Unable to send room_cleanup_by_id command to the vacuum: %s",
+            self._vacuum.room_cleanup_by_id,
+            rooms,
+            repeats,
+            clean_mode,
+            mop_mode,
+        )
 
-    async def async_restricted_zone(self, zone, repeats=1):
+    async def async_set_restricted_zone(self, zone, repeats=1):
         """Create restricted zone."""
-        try:
-            await self.hass.async_add_executor_job(self._vacuum.restricted_zone, zone)
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error(
-                "Unable to send restricted_zone command to the vacuum: %s", exc
-            )
+        await self._try_command(
+            "Unable to send set_restricted_zone command to the vacuum: %s",
+            self._vacuum.set_restricted_zone,
+            zone,
+        )
 
     async def async_remote_control_move_step(
         self, rotation: int = 0, velocity: int = 0, duration: int = 1500
     ):
-        """Create restricted zone."""
-        try:
-            await self.hass.async_add_executor_job(
-                self._vacuum.manual_control_once, rotation, velocity
-            )
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error(
-                "Unable to send remote control step command to the vacuum: %s", exc
-            )
+        """Remote control the robot."""
+        await self._try_command(
+            "Unable to send remote control step command to the vacuum: %s",
+            self._vacuum.manual_control_once,
+            rotation,
+            velocity,
+        )
 
     async def async_reset_filter_life(self):
         """Reset filter life."""
-        try:
-            await self.hass.async_add_executor_job(self._vacuum.reset_filter_life)
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error(
-                "Unable to send reset_filter_life command to the vacuum: %s", exc
-            )
+        await self._try_command(
+            "Unable to send reset_filter_life command to the vacuum: %s",
+            self._vacuum.reset_filter_life,
+        )
 
     async def async_reset_main_brush_life(self):
         """Reset filter life."""
-        try:
-            await self.hass.async_add_executor_job(self._vacuum.reset_brush_life)
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error(
-                "Unable to send reset_main_brush_life command to the vacuum: %s", exc
-            )
+        await self._try_command(
+            "Unable to send reset_main_brush_life command to the vacuum: %s",
+            self._vacuum.reset_brush_life,
+        )
 
     async def async_reset_side_brush_life(self):
         """Reset filter life."""
-        try:
-            await self.hass.async_add_executor_job(self._vacuum.reset_side_brush_life)
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error(
-                "Unable to send reset_side_brush_life command to the vacuum: %s", exc
-            )
+        await self._try_command(
+            "Unable to send reset_side_brush_life command to the vacuum: %s",
+            self._vacuum.reset_side_brush_life,
+        )
 
     async def async_pause(self):
         """Pause the cleaning task."""
         await self._try_command(
-            "Unable to set start/pause: %s", self._vacuum.stop_sweeping
+            "Unable to set start/pause: %s", self._vacuum.pause_sweeping
         )
 
     async def async_return_to_base(self, **kwargs):
@@ -740,19 +729,17 @@ class MiroboVacuum(StateVacuumEntity):
             "Unable to set fan speed: %s", self._vacuum.set_fan_speed, fan_speed
         )
 
-    async def async_set_map(self, map_id):
-        """Set map."""
-        try:
-            await self.hass.async_add_executor_job(self._vacuum.set_map, map_id)
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error("Unable to send set_map command to the vacuum: %s", exc)
+    async def async_select_map(self, map_id):
+        """Switch selected map."""
+        await self._try_command(
+            "Unable to switch to selected map: %s", self._vacuum.select_map, map_id
+        )
 
     async def async_fast_map(self):
         """Fast map."""
-        try:
-            await self.hass.async_add_executor_job(self._vacuum.fast_map)
-        except (OSError, DeviceException) as exc:
-            _LOGGER.error("Unable to send fast_map command to the vacuum: %s", exc)
+        await self._try_command(
+            "Unable to send fast_map command to the vacuum: %s", self._vacuum.fast_map
+        )
 
     async def async_set_water_level(self, water_level, **kwargs):
         """Set water level."""

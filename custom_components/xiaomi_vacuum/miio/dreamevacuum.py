@@ -12,35 +12,58 @@ from random import randint
 _LOGGER = logging.getLogger(__name__)
 
 _MAPPING: MiotMapping = {
-    "device_status": {"siid": 2, "piid": 1},
-    "device_fault": {"siid": 2, "piid": 2},
-    "battery_level": {"siid": 3, "piid": 1},
-    "charging_state": {"siid": 3, "piid": 2},
-    "operating_mode": {"siid": 4, "piid": 1},
-    "cleaning_time": {"siid": 4, "piid": 2},
-    "cleaning_area": {"siid": 4, "piid": 3},
-    "cleaning_mode": {"siid": 4, "piid": 4},
-    "water_level": {"siid": 4, "piid": 5},
-    "waterbox_status": {"siid": 4, "piid": 6},
-    "operation_status": {"siid": 4, "piid": 7},
-    "dnd_enabled": {"siid": 5, "piid": 1},
-    "dnd_start_time": {"siid": 5, "piid": 2},
-    "dnd_stop_time": {"siid": 5, "piid": 3},
-    "audio_volume": {"siid": 7, "piid": 1},
-    "audio_language": {"siid": 7, "piid": 2},
-    "set-voice": {"siid": 7, "piid": 4},
-    "timezone": {"siid": 8, "piid": 1},
-    "scheduled-clean": {"siid": 8, "piid": 2},
-    "main_brush_left_time": {"siid": 9, "piid": 1},
-    "main_brush_life_level": {"siid": 9, "piid": 2},
-    "side_brush_left_time": {"siid": 10, "piid": 1},
-    "side_brush_life_level": {"siid": 10, "piid": 2},
-    "filter_life_level": {"siid": 11, "piid": 1},
-    "filter_left_time": {"siid": 11, "piid": 2},
-    "first-clean-time": {"siid": 12, "piid": 1},
-    "total_clean_time": {"siid": 12, "piid": 2},
-    "total_clean_count": {"siid": 12, "piid": 3},
-    "total_clean_area": {"siid": 12, "piid": 4},
+    ## General
+    "property_device_status": {"siid": 2, "piid": 1},
+    "property_device_fault": {"siid": 2, "piid": 2},
+    "action_start_sweeping": {"siid": 2, "aiid": 1},
+    "action_pause_sweeping": {"siid": 2, "aiid": 2},
+    ## Battery
+    "property_battery_level": {"siid": 3, "piid": 1},
+    "property_charging_state": {"siid": 3, "piid": 2},
+    "action_start_charging": {"siid": 3, "aiid": 1},
+    ## Vacuum
+    "property_operating_mode": {"siid": 4, "piid": 1},
+    "property_cleaning_time": {"siid": 4, "piid": 2},
+    "property_cleaning_area": {"siid": 4, "piid": 3},
+    "property_cleaning_mode": {"siid": 4, "piid": 4},
+    "property_water_level": {"siid": 4, "piid": 5},
+    "property_waterbox_status": {"siid": 4, "piid": 6},
+    "property_operation_status": {"siid": 4, "piid": 7},
+    "action_start_sweeping_advanced": {"siid": 4, "aiid": 1},
+    "action_stop_sweeping": {"siid": 4, "aiid": 2},
+    ## Do not disturb
+    "property_dnd_enabled": {"siid": 5, "piid": 1},
+    "property_dnd_start_time": {"siid": 5, "piid": 2},
+    "property_dnd_stop_time": {"siid": 5, "piid": 3},
+    ## Map
+    "action_req_map": {"siid": 6, "piid": 1},
+    "action_set_map": {"siid": 6, "piid": 2},
+    ## Audio
+    "property_audio_volume": {"siid": 7, "piid": 1},
+    "property_audio_language": {"siid": 7, "piid": 2},
+    "property_voice": {"siid": 7, "piid": 4},
+    "action_locate": {"siid": 7, "aiid": 1},
+    "action_test_sound": {"siid": 7, "aiid": 2},
+    ## Schedule
+    "property_timezone": {"siid": 8, "piid": 1},
+    "property_scheduled-clean": {"siid": 8, "piid": 2},
+    ## Main brush
+    "property_main_brush_left_time": {"siid": 9, "piid": 1},
+    "property_main_brush_life_level": {"siid": 9, "piid": 2},
+    "action_reset_main_brush_life": {"siid": 9, "aiid": 1},
+    ## Side brush
+    "property_side_brush_left_time": {"siid": 10, "piid": 1},
+    "property_side_brush_life_level": {"siid": 10, "piid": 2},
+    "action_reset_side_brush_life": {"siid": 10, "aiid": 1},
+    ## Filter
+    "property_filter_life_level": {"siid": 11, "piid": 1},
+    "property_filter_left_time": {"siid": 11, "piid": 2},
+    "action_reset_filter_life": {"siid": 11, "aiid": 1},
+    ## Log
+    "property_first-clean-time": {"siid": 12, "piid": 1},
+    "property_total_clean_time": {"siid": 12, "piid": 2},
+    "property_total_clean_count": {"siid": 12, "piid": 3},
+    "property_total_clean_area": {"siid": 12, "piid": 4},
 }
 
 
@@ -164,148 +187,160 @@ class DreameVacuumStatus(DeviceStatusContainer):
     @property
     def status(self) -> VacuumStatus:
         try:
-            return VacuumStatus(self.data["device_status"])
+            return VacuumStatus(self.data["property_device_status"])
         except ValueError:
-            _LOGGER.error("Unknown device_status (%s)", self.data["device_status"])
+            _LOGGER.error(
+                "Unknown device_status (%s)", self.data["property_device_status"]
+            )
             return VacuumStatus.Unknown
 
     @property
     def error(self) -> ErrorCodes:
         try:
-            return ErrorCodes(self.data["device_fault"])
+            return ErrorCodes(self.data["property_device_fault"])
         except ValueError:
-            _LOGGER.error("Unknown device_fault (%s)", self.data["device_fault"])
+            _LOGGER.error(
+                "Unknown device_fault (%s)", self.data["property_device_fault"]
+            )
             return ErrorCodes.Unknown
 
     @property
     def battery(self) -> int:
-        return self.data["battery_level"]
+        return self.data["property_battery_level"]
 
     @property
     def state(self) -> ChargeStatus:
         try:
-            return ChargeStatus(self.data["charging_state"])
+            return ChargeStatus(self.data["property_charging_state"])
         except ValueError:
-            _LOGGER.error("Unknown charging_state (%s)", self.data["charging_state"])
+            _LOGGER.error(
+                "Unknown charging_state (%s)", self.data["property_charging_state"]
+            )
             return ChargeStatus.Unknown
 
     @property
     def operating_mode(self) -> OperatingMode:
         try:
-            return OperatingMode(self.data["operating_mode"])
+            return OperatingMode(self.data["property_operating_mode"])
         except ValueError:
-            _LOGGER.error("Unknown operating_mode (%s)", self.data["operating_mode"])
+            _LOGGER.error(
+                "Unknown operating_mode (%s)", self.data["property_operating_mode"]
+            )
             return OperatingMode.Unknown
 
     @property
     def cleaning_time(self) -> str:
-        return self.data["cleaning_time"]
+        return self.data["property_cleaning_time"]
 
     @property
     def cleaning_area(self) -> str:
-        return self.data["cleaning_area"]
+        return self.data["property_cleaning_area"]
 
     @property
     def fan_speed(self) -> VacuumSpeed:
         try:
-            return VacuumSpeed(self.data["cleaning_mode"])
+            return VacuumSpeed(self.data["property_cleaning_mode"])
         except ValueError:
-            _LOGGER.error("Unknown cleaning_mode (%s)", self.data["cleaning_mode"])
+            _LOGGER.error(
+                "Unknown cleaning_mode (%s)", self.data["property_cleaning_mode"]
+            )
             return VacuumSpeed.Unknown
 
     @property
     def water_level(self) -> WaterLevel:
         try:
-            return WaterLevel(self.data["water_level"])
+            return WaterLevel(self.data["property_water_level"])
         except ValueError:
-            _LOGGER.error("Unknown water_level (%s)", self.data["water_level"])
+            _LOGGER.error("Unknown water_level (%s)", self.data["property_water_level"])
             return WaterLevel.Unknown
 
     @property
     def waterbox_status(self) -> Waterbox:
         try:
-            return Waterbox(self.data["waterbox_status"])
+            return Waterbox(self.data["property_waterbox_status"])
         except ValueError:
-            _LOGGER.error("Unknown waterbox_status (%s)", self.data["waterbox_status"])
+            _LOGGER.error(
+                "Unknown waterbox_status (%s)", self.data["property_waterbox_status"]
+            )
             return Waterbox.Unknown
 
     @property
     def operation_status(self) -> OperationStatus:
         try:
-            return OperationStatus(self.data["operation_status"])
+            return OperationStatus(self.data["property_operation_status"])
         except ValueError:
             _LOGGER.error(
-                "Unknown operation_status (%s)", self.data["operation_status"]
+                "Unknown operation_status (%s)", self.data["property_operation_status"]
             )
             return OperationStatus.Unknown
 
     @property
     def dnd_enabled(self) -> bool:
-        return self.data["dnd_enabled"]
+        return self.data["property_dnd_enabled"]
 
     @property
     def dnd_start_time(self) -> str:
-        return self.data["dnd_start_time"]
+        return self.data["property_dnd_start_time"]
 
     @property
     def dnd_stop_time(self) -> str:
-        return self.data["dnd_stop_time"]
+        return self.data["property_dnd_stop_time"]
 
     @property
     def audio_volume(self) -> int:
-        return self.data["audio_volume"]
+        return self.data["property_audio_volume"]
 
     @property
     def audio_language(self) -> str:
-        return self.data["audio_language"]
+        return self.data["property_audio_language"]
 
     @property
     def timezone(self) -> str:
-        return self.data["timezone"]
+        return self.data["property_timezone"]
 
     @property
     def schedule(self) -> str:
-        return self.data["scheduled-clean"]
+        return self.data["property_scheduled-clean"]
 
     @property
     def main_brush_left_time(self) -> int:
-        return self.data["main_brush_left_time"]
+        return self.data["property_main_brush_left_time"]
 
     @property
     def main_brush_life_level(self) -> int:
-        return self.data["main_brush_life_level"]
+        return self.data["property_main_brush_life_level"]
 
     @property
     def side_brush_left_time(self) -> int:
-        return self.data["side_brush_left_time"]
+        return self.data["property_side_brush_left_time"]
 
     @property
     def side_brush_life_level(self) -> int:
-        return self.data["side_brush_life_level"]
+        return self.data["property_side_brush_life_level"]
 
     @property
     def filter_life_level(self) -> int:
-        return self.data["filter_life_level"]
+        return self.data["property_filter_life_level"]
 
     @property
     def filter_left_time(self) -> int:
-        return self.data["filter_left_time"]
+        return self.data["property_filter_left_time"]
 
     @property
     def total_log_start(self) -> int:
-        return self.data["first-clean-time"]
+        return self.data["property_first-clean-time"]
 
     @property
     def total_clean_time(self) -> int:
-        return self.data["total_clean_time"]
+        return self.data["property_total_clean_time"]
 
     @property
     def total_clean_count(self) -> int:
-        return self.data["total_clean_count"]
+        return self.data["property_total_clean_count"]
 
     @property
     def total_clean_area(self) -> int:
-        return self.data["total_clean_area"]
+        return self.data["property_total_clean_area"]
 
 
 class DreameVacuum(MiotDevice):
@@ -323,97 +358,71 @@ class DreameVacuum(MiotDevice):
             }
         )
 
-    def call_action(self, siid, aiid, params=None):
-        # {"did":"call-siid-aiid","siid":18,"aiid":1,"in":[{"piid":1,"value":2}]
-        if params is None:
-            params = []
-        payload = {
-            "did": f"call-{siid}-{aiid}",
-            "siid": siid,
-            "aiid": aiid,
-            "in": params,
-        }
-        return self.send("action", payload)
-
     @command(click.argument("speed", type=int))
     def set_fan_speed(self, speed):
-        return self.set_property("cleaning_mode", speed)
+        """Set vacuum cleaning mode."""
+        return self.set_property("property_cleaning_mode", speed)
 
-    # siid 3: (Battery): 2 props, 1 actions
-    # aiid 1 Start Charge: in: [] -> out: []
     @command()
     def return_home(self) -> None:
-        """aiid 1 Start Charge: in: [] -> out: []"""
-        return self.call_action(3, 1)
+        """Return home for charging."""
+        return self.call_action("action_start_charging")
 
-    # siid 2: (Robot Cleaner): 2 props, 2 actions
-    # aiid 1 Start Sweep: in: [] -> out: []
     @command()
     def start_sweep(self) -> None:
-        """aiid 1 Start Sweep: in: [] -> out: []"""
-        return self.call_action(2, 1)
+        """Start cleaning."""
+        return self.call_action("action_start_sweeping")
 
-    # aiid 2 Stop Sweeping: in: [] -> out: []
     @command()
-    def stop_sweeping(self) -> None:
-        """aiid 2 Stop Sweeping: in: [] -> out: []"""
-        return self.call_action(2, 2)
+    def pause_sweeping(self) -> None:
+        """Pause cleaning."""
+        return self.call_action("action_pause_sweeping")
 
-    # siid 9: (Main Cleaning Brush): 2 props, 1 actions
-    # aiid 1: Reset Brush Life: in: [] -> out: []
     @command()
     def reset_brush_life(self) -> None:
-        """aiid 1 Reset Brush Life: in: [] -> out: []"""
-        return self.call_action(9, 1)
+        """Reset main brush's life."""
+        return self.call_action("action_reset_main_brush_life")
 
-    # siid 11: (Filter): 2 props, 1 actions
-    # aiid 1: Reset Filter Life: in: [] -> out: []
     @command()
     def reset_filter_life(self) -> None:
-        """aiid 1 Reset Filter Life: in: [] -> out: []"""
-        return self.call_action(11, 1)
+        """Reset filter's life."""
+        return self.call_action("action_reset_filter_life")
 
-    # siid 10: (Side Cleaning Brush): 2 props, 1 actions
-    # aiid 1: Reset Brush Life: in: [] -> out: []
     @command()
     def reset_side_brush_life(self) -> None:
-        """aiid 1 Reset Brush Life: in: [] -> out: []"""
-        return self.call_action(10, 1)
+        """Reset side brush's life."""
+        return self.call_action("action_reset_side_brush_life")
 
-    # siid 4: (vacuum-extend): 20 props, 3 actions
-    # aiid 1: (start-clean): in: [] -> out: []
     @command()
-    def start(self) -> None:
-        """Start cleaning."""
-        # TODO: find out other values
-        payload = [{"piid": 1, "value": 2}]
-        return self.call_action(4, 1, payload)
+    def start_sweeping_advanced(self, params) -> None:
+        """Start cleaning (advanced). Specify cleaning mode like room, zone,..."""
+        return self.call_action("action_start_sweeping_advanced", params)
 
-    # aiid 2 stop-clean: in: [] -> out: []
     @command()
-    def stop(self) -> None:
+    def stop_sweeping(self) -> None:
         """Stop cleaning."""
-        return self.call_action(4, 2)
+        return self.call_action("action_stop_sweeping")
 
-    # aiid 4 fast mapping
+    @command()
+    def set_map(self, params) -> None:
+        """Set map related features like: switching to another map, setting restricted area, etc."""
+        return self.call_action("action_set_map", params)
+
     @command()
     def fast_map(self) -> None:
         """Start fast mapping."""
         payload = [{"piid": 1, "value": 21}]
-        return self.call_action(4, 1, payload)
+        return self.start_sweeping_advanced(payload)
 
     @command(click.argument("coords", type=str))
     def zone_cleanup(self, coords) -> None:
         """Start zone cleaning."""
         payload = [{"piid": 1, "value": 19}, {"piid": 10, "value": coords}]
-        return self.call_action(4, 1, payload)
-        # # siid 21: (remote): 2 props, 3 actions
+        return self.start_sweeping_advanced(payload)
 
-    # @command(click.argument("coords", type=str, ""))
+    @command()
     def room_cleanup_by_id(self, rooms, repeats, clean_mode, mop_mode) -> None:
         """Start room-id cleaning."""
-        # clean_mode = 3
-        # mop_mode = 3
         cleanlist = []
         for sublist in rooms:
             if len(sublist) > 1:
@@ -438,14 +447,15 @@ class DreameVacuum(MiotDevice):
                 "value": '{"selects": ' + str(cleanlist).replace(" ", "") + "}",
             },
         ]
-        return self.call_action(4, 1, payload)
+        return self.start_sweeping_advanced(payload)
 
     @command(click.argument("coords", type=str))
-    def restricted_zone(self, coords) -> None:
+    def set_restricted_zone(self, coords) -> None:
         """Create restricted/mop zone"""
         payload = [{"piid": 4, "value": coords}]
-        return self.call_action(6, 2, payload)
+        return self.set_map(payload)
 
+    # TODO test/improve this
     @command()
     def manual_control_once(self, rotation, velocity) -> None:
         siid = 4
@@ -466,36 +476,32 @@ class DreameVacuum(MiotDevice):
         ]
         return self.send("set_properties", payload)
 
-    # siid 6: (map): 6 props, 2 actions
-    # aiid 1: (map-req): in: [2] -> out: []
     @command()
-    def map_req(self) -> None:
-        return self.call_action(6, 1)
+    def request_map(self, params) -> None:
+        # TODO find out the parameters
+        return self.call_action("action_req_map", params)
 
-    # aiid 2: (set-map)
     @command()
-    def set_map(self, map_id) -> None:
+    def select_map(self, map_id) -> None:
+        """Switch to another map."""
         payload = [
             {
                 "piid": 4,
                 "value": '{"sm": ' + "{" + "}" + ', "mapid":' + str(map_id) + "}",
             }
         ]
-        return self.call_action(6, 2, payload)
+        return self.set_map(payload)
 
     @command(click.argument("water", type=int))
     def set_water_level(self, water):
         """Set water level"""
-        return self.set_property("water_level", water)
+        return self.set_property("property_water_level", water)
 
-    # siid 7: (audio): 4 props, 2 actions
-    # aiid 1: in: [] -> out: []
     @command()
-    def find(self) -> None:
-        """Locate Vacuum Robot"""
-        return self.call_action(7, 1)
+    def locate(self) -> None:
+        """Locate vacuum robot."""
+        return self.call_action("action_locate")
 
-    # aiid 2 : in: [] -> out: []
     @command()
     def install_voice_pack(self, lang_id: str, url: str, md5: str, size: int) -> None:
         """Install given voice pack."""
@@ -503,15 +509,9 @@ class DreameVacuum(MiotDevice):
             '{"id":"%(lang_id)s","url":"%(url)s","md5":"%(md5)s","size":%(size)d}'
             % {"lang_id": lang_id, "url": url, "md5": md5, "size": size}
         )
-        _LOGGER.info("pooya: " + value)
-        self.set_property(
-            "set-voice",
-            '{"id":"%(lang_id)s","url":"%(url)s","md5":"%(md5)s","size":%(size)d}'
-            % {"lang_id": lang_id, "url": url, "md5": md5, "size": size},
-        )
+        self.set_property("property_voice", value)
 
-    # aiid 2: in: [] -> out: []
     @command()
     def test_sound(self) -> None:
         """aiid 3 : in: [] -> out: []"""
-        return self.call_action(7, 2)
+        return self.call_action_by("action_test_sound")
