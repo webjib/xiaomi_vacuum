@@ -260,6 +260,8 @@ class MiIOProtocol:
     def _id(self) -> int:
         """Increment and return the sequence id."""
         self.__id += random.randint(1, 1000)
+        if self.__id >= 9999:
+            self.__id = 1
         return self.__id
 
     @property
