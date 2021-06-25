@@ -489,10 +489,7 @@ class MiroboVacuum(StateVacuumEntity):
             try:
                 return STATE_CODE_TO_STATE[self.vacuum_state]
             except KeyError:
-                _LOGGER.error(
-                    "STATE_CODE not supported: %s",
-                    self.vacuum_state,
-                )
+                _LOGGER.error("STATE_CODE not supported: %s", self.vacuum_state)
                 return None
 
     @property
@@ -502,39 +499,35 @@ class MiroboVacuum(StateVacuumEntity):
             try:
                 return ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown")
             except KeyError:
-                _LOGGER.error(
-                    "ERROR_CODE not supported: %s",
-                    self.vacuum_error,
-                )
+                _LOGGER.error("ERROR_CODE not supported: %s", self.vacuum_error)
                 return None
 
     @property
     def battery_level(self):
         """Return the battery level of the vacuum cleaner."""
-        if self.vacuum_state is not None:
-            return self.battery_percentage
+        return self.battery_percentage
 
     @property
     def fan_speed(self):
         """Return the fan speed of the vacuum cleaner."""
-        if self.vacuum_state is not None:
-            speed = self._current_fan_speed
-            if speed in self._fan_speeds_reverse:
+        if self._current_fan_speed is not None:
+            try:
                 return SPEED_CODE_TO_NAME.get(self._current_fan_speed, "Unknown")
-            _LOGGER.debug("Unable to find reverse for %s", speed)
-            return speed
+            except KeyError:
+                _LOGGER.error("SPEED_CODE not supported: %s", self._current_fan_speed)
+            return None
 
     @property
     def water_level(self):
         """Return the water level of the vacuum cleaner."""
-        if self.vacuum_state is not None:
-            water = self._current_water_level
-            if water in self._water_level_reverse:
+        if self._current_water_level is not None:
+            try:
                 return WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown")
-
-            _LOGGER.debug("Unable to find reverse for %s", water)
-
-            return water
+            except KeyError:
+                _LOGGER.error(
+                    "WATER_CODE not supported %s", self._current_water_level
+                )
+            return None
 
     @property
     def water_level_list(self):
