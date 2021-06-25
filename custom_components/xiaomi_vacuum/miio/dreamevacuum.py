@@ -29,6 +29,7 @@ _MAPPING: MiotMapping = {
     "property_water_level": {"siid": 4, "piid": 5},
     "property_waterbox_status": {"siid": 4, "piid": 6},
     "property_operation_status": {"siid": 4, "piid": 7},
+    "property_clean_cloth_tip": {"siid": 4, "piid": 16},
     "action_start_sweeping_advanced": {"siid": 4, "aiid": 1},
     "action_stop_sweeping": {"siid": 4, "aiid": 2},
     ## Do not disturb
@@ -342,6 +343,10 @@ class DreameVacuumStatus(DeviceStatusContainer):
     def total_clean_area(self) -> int:
         return self.data["property_total_clean_area"]
 
+    @property
+    def clean_cloth_tip(self) -> str:
+        return self.data["property_clean_cloth_tip"]
+
 
 class DreameVacuum(MiotDevice):
     """Support for dreame vacuum robot d9 (dreame.vacuum.p2009)."""
@@ -515,3 +520,8 @@ class DreameVacuum(MiotDevice):
     def test_sound(self) -> None:
         """aiid 3 : in: [] -> out: []"""
         return self.call_action_by("action_test_sound")
+
+    @command(click.argument("time", type=int))
+    def set_cloth_cleaning_tip(self, delay):
+        """Set reminder delay for cleaning mop, 0 to disable the tip"""
+        return self.set_property("property_clean_cloth_tip", delay)

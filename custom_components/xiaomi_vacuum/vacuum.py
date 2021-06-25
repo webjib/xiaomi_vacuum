@@ -78,10 +78,7 @@ ATTR_DND_STOP_TIME = "dnd_stop"
 ATTR_AUDIO_LANGUAGE = "audio_language"
 ATTR_AUDIO_VOLUME = "audio_volume"
 ATTR_TIMEZONE = "timezone"
-ATTR_LANGUAGE_ID = "lang_id"
-ATTR_URL = "url"
-ATTR_MD5 = "md5"
-ATTR_SIZE = "size"
+ATTR_CLEAN_CLOTH_TIP = "clean_cloth_tip"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
 SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
@@ -95,6 +92,7 @@ SERVICE_RESET_BRUSH_LIFE2 = "vacuum_reset_side_brush_life"
 SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
 SERVICE_WATER_LEVEL = "vacuum_set_water_level"
 SERVICE_INSTALL_VOICE_PACK = "vacuum_install_voice_pack"
+SERVICE_SET_CLEAN_CLOTH_TIP = "vacuum_set_clean_cloth_tip"
 
 INPUT_RC_DURATION = "duration"
 INPUT_RC_ROTATION = "rotation"
@@ -105,6 +103,11 @@ INPUT_ZONE_REPEATER = "repeats"
 INPUT_ROOMS_ARRAY = "rooms"
 INPUT_CLEAN_MODE = "clean_mode"
 INPUT_MOP_MODE = "mop_mode"
+INPUT_LANGUAGE_ID = "lang_id"
+INPUT_DELAY = "delay"
+INPUT_URL = "url"
+INPUT_MD5 = "md5"
+INPUT_SIZE = "size"
 
 STATE_MOPPING = "Mopping"
 STATE_UNKNWON = "Unknown"
@@ -403,12 +406,20 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     platform.async_register_entity_service(
         SERVICE_INSTALL_VOICE_PACK,
         {
-            vol.Required(ATTR_LANGUAGE_ID): cv.string,
-            vol.Required(ATTR_URL): cv.string,
-            vol.Required(ATTR_MD5): cv.string,
-            vol.Required(ATTR_SIZE): cv.positive_int,
+            vol.Required(INPUT_LANGUAGE_ID): cv.string,
+            vol.Required(INPUT_URL): cv.string,
+            vol.Required(INPUT_MD5): cv.string,
+            vol.Required(INPUT_SIZE): cv.positive_int,
         },
         MiroboVacuum.async_install_voice_pack.__name__,
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_SET_CLEAN_CLOTH_TIP,
+        {
+            vol.Optional(INPUT_DELAY): vol.Clamp(min=0, max=120),
+        },
+        MiroboVacuum.async_set_clean_cloth_tip.__name__,
     )
 
 
@@ -463,6 +474,8 @@ class MiroboVacuum(StateVacuumEntity):
         self._audio_language = None
 
         self._timezone = None
+
+        self._clean_cloth_tip = None
 
     @property
     def name(self):
@@ -571,6 +584,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_time,
                 ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
                 ATTR_CLEANING_TOTAL_AREA: self._total_clean_area,
+                ATTR_CLEAN_CLOTH_TIP: self._clean_cloth_tip,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(
                     self._current_water_level, "Unknown"
                 ),
@@ -770,6 +784,14 @@ class MiroboVacuum(StateVacuumEntity):
             size,
         )
 
+    async def async_set_clean_cloth_tip(self, delay):
+        """Set reminder delay for cleaning mop, 0 to disable the tip"""
+        await self._try_command(
+            "Unable to set clean cloth reminder's delay pack: %s",
+            self._vacuum.set_cloth_cleaning_tip,
+            delay,
+        )
+
     def update(self):
         """Fetch state from the device."""
         try:
@@ -818,6 +840,8 @@ class MiroboVacuum(StateVacuumEntity):
             self._audio_language = state.audio_language
 
             self._timezone = state.timezone
+
+            self._clean_cloth_tip = state.clean_cloth_tip
 
         except OSError as exc:
             _LOGGER.error("Got OSError while fetching the state: %s", exc)

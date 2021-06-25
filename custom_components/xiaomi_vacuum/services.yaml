@@ -85,3 +85,21 @@ vacuum_install_voice_pack:
       description: "Size of the language pack in bytes"
       example: 4067845
       required: true
+
+vacuum_set_clean_cloth_tip:
+  description: Set delay of clean cloth reminder.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    delay:
+      description: "Delay in minutes. (0 = disable)"
+      example: 45
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 120

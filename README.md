@@ -150,6 +150,7 @@ data:
 - total_cleaning_area
 - water_level: high
 - water_level_list
+- clean_cloth_tip
 - map_id_list<sup>1</sup>
 - room_list<sup>1</sup>
 
@@ -164,6 +165,7 @@ data:
 - xiaomi Vacuum: vacuum_clean_zone
 - xiaomi Vacuum: vacuum_set_restricted_zone
 - xiaomi Vacuum: vacuum_install_voice_pack
+- Xiaomi Vacuum: vacuum_set_clean_cloth_tip
 
 ## Installation
 
