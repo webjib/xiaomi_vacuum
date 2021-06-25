@@ -2,6 +2,7 @@
 from functools import partial
 import logging
 import voluptuous as vol
+import time
 
 from .miio import DreameVacuum, DeviceException
 from .miio.dreamevacuum import (
@@ -576,7 +577,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_FILTER_LEFT_TIME: self._filter_left_time,
                 ATTR_CLEANING_AREA: self._cleaning_area,
                 ATTR_CLEANING_TIME: self._cleaning_time,
-                ATTR_CLEANING_LOG_START: self._total_log_start,
+                ATTR_CLEANING_LOG_START: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._total_log_start)),
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_time,
                 ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
                 ATTR_CLEANING_TOTAL_AREA: self._total_clean_area,
