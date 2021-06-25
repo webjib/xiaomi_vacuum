@@ -28,7 +28,7 @@ vacuum_set_restricted_zone:
       example: '"{"vw":{"line":[],"rect":[[819,-263,4424,2105],[-2001,-3050,-542,515]],"mop":[]}}"'
 
 vacuum_remote_control_move_step:
-  description: Remotely control the vacuum bot.
+  description: Remotely control move the bot one step.
   target:
     entity:
       domain: vacuum
@@ -37,11 +37,11 @@ vacuum_remote_control_move_step:
       description: Name of the vacuum entity.
       example: "vacuum.dreame_d9"
     rotation:
-      description: Turn in degrees between -179 and 179
-      example: "-90"
+      description: Turn in binary degrees between -128 and 128.
+      example: "64"
     velocity:
-      description: Distance between 0 and 300.
-      example: "200"
+      description: Move speed, from 100 (forward) to -300 (backward)
+      example: "100"
 
 vacuum_set_water_level:
   description: Set water level for mopping.

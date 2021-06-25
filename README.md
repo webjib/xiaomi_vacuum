@@ -8,12 +8,14 @@ This integration should also work for the following models:
 
 > :warning: This is WIP. I'm still refactoring and cleaning up the code so some things might change, for the better :)
 
-- [xiaomi_vacuum (Dreame D9) integration for Homeassistant[WIP]](#xiaomi_vacuum-dreame-d9-integration-for-homeassistantwip)
+- [xiaomi_vacuum (Dreame D9) integration for Homeassistant](#xiaomi_vacuum-dreame-d9-integration-for-homeassistant)
   - [Room cleaning support](#room-cleaning-support)
     - [Example of cleaning schedule:](#example-of-cleaning-schedule)
     - [Example of calling room cleaning service:](#example-of-calling-room-cleaning-service)
   - [Installing custom voice packs](#installing-custom-voice-packs)
     - [Example of install voice pack](#example-of-install-voice-pack)
+  - [Remote controlling the robot](#remote-controlling-the-robot)
+    - [Examples of calling remote control step service](#examples-of-calling-remote-control-step-service)
   - [Developement Status](#developement-status)
     - [Current list of attributes:](#current-list-of-attributes)
     - [Current list of services:](#current-list-of-services)
@@ -120,6 +122,16 @@ data:
   size: 2532057
 ```
 
+## Remote controlling the robot
+
+It is also possible to remotely move the robot forward, backward or rotate it using `vacuum_remote_control_move_step` service.
+This service requires the following attributes:
+
+- velosity: the speed in which the robot moves. Positive values indicate a forward movement and negative values, backward. The value must be between 100 and -300.
+- rotation: the angle of rotation in binary degrees. Positive Values indicate a CCW rotation and negative values, CW. The value must be between 128 and -128.
+
+### Examples of calling remote control step service
+
 ## Developement Status
 
 ### Current list of attributes:
@@ -167,6 +179,7 @@ data:
 - xiaomi Vacuum: vacuum_set_restricted_zone
 - xiaomi Vacuum: vacuum_install_voice_pack
 - Xiaomi Vacuum: vacuum_set_clean_cloth_tip
+- Xiaomi Vacuum: vacuum_remote_control_move_step
 
 ## Installation
 

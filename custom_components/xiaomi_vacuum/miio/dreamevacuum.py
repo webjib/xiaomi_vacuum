@@ -30,6 +30,7 @@ _MAPPING: MiotMapping = {
     "property_waterbox_status": {"siid": 4, "piid": 6},
     "property_operation_status": {"siid": 4, "piid": 7},
     "property_serial_number": {"siid": 4, "piid": 14},
+    "property_remote_control_step": {"siid": 4, "piid": 15},
     "property_clean_cloth_tip": {"siid": 4, "piid": 16},
     "action_start_sweeping_advanced": {"siid": 4, "aiid": 1},
     "action_stop_sweeping": {"siid": 4, "aiid": 2},
@@ -352,6 +353,7 @@ class DreameVacuumStatus(DeviceStatusContainer):
     def serial_number(self) -> str:
         return self.data["property_serial_number"]
 
+
 class DreameVacuum(MiotDevice):
     """Support for dreame vacuum robot d9 (dreame.vacuum.p2009)."""
 
@@ -464,26 +466,18 @@ class DreameVacuum(MiotDevice):
         payload = [{"piid": 4, "value": coords}]
         return self.set_map(payload)
 
-    # TODO test/improve this
     @command()
-    def manual_control_once(self, rotation, velocity) -> None:
-        siid = 4
-        piid = 15
-        payload = [
-            {
-                "did": f"call-{siid}-{piid}",
-                "siid": 4,
-                "piid": 15,
-                "value": '{"spdv": '
-                + str(velocity)
-                + ',"spdw": '
-                + str(rotation)
-                + ',"audio":"false","random": '
-                + str(randint(1000, 9999))
-                + "}",
-            }
-        ]
-        return self.send("set_properties", payload)
+    def remote_control_step(self, rotation, velocity) -> None:
+        """
+        Move robot manually one time.
+        :param int rotation: angle to rotate in binary angles 128 to -128
+        :param int velocity: speed to move forward or backward 100 to -300
+        """
+        value = '{"spdv":%(velocity)d,"spdw":%(rotation)d,"audio":"false"}' % {
+            "velocity": velocity,
+            "rotation": rotation,
+        }
+        return self.set_property("property_remote_control_step", value)
 
     @command()
     def request_map(self, params) -> None:

@@ -96,7 +96,6 @@ SERVICE_WATER_LEVEL = "vacuum_set_water_level"
 SERVICE_INSTALL_VOICE_PACK = "vacuum_install_voice_pack"
 SERVICE_SET_CLEAN_CLOTH_TIP = "vacuum_set_clean_cloth_tip"
 
-INPUT_RC_DURATION = "duration"
 INPUT_RC_ROTATION = "rotation"
 INPUT_RC_VELOCITY = "velocity"
 INPUT_MAP_ID = "map_id"
@@ -387,11 +386,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     platform.async_register_entity_service(
         SERVICE_MOVE_REMOTE_CONTROL_STEP,
         {
-            vol.Optional(INPUT_RC_VELOCITY): vol.All(
-                vol.Coerce(int), vol.Clamp(min=-300, max=300)
+            vol.Required(INPUT_RC_VELOCITY): vol.All(
+                vol.Coerce(int), vol.Clamp(min=-300, max=100)
             ),
-            vol.Optional(INPUT_RC_ROTATION): vol.All(
-                vol.Coerce(int), vol.Clamp(min=-179, max=179)
+            vol.Required(INPUT_RC_ROTATION): vol.All(
+                vol.Coerce(int), vol.Clamp(min=-128, max=128)
             ),
         },
         MiroboVacuum.async_remote_control_move_step.__name__,
@@ -419,7 +418,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     platform.async_register_entity_service(
         SERVICE_SET_CLEAN_CLOTH_TIP,
         {
-            vol.Optional(INPUT_DELAY): vol.Clamp(min=0, max=120),
+            vol.Required(INPUT_DELAY): vol.Clamp(min=0, max=120),
         },
         MiroboVacuum.async_set_clean_cloth_tip.__name__,
     )
@@ -528,9 +527,7 @@ class MiroboVacuum(StateVacuumEntity):
             try:
                 return WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown")
             except KeyError:
-                _LOGGER.error(
-                    "WATER_CODE not supported %s", self._current_water_level
-                )
+                _LOGGER.error("WATER_CODE not supported %s", self._current_water_level)
             return None
 
     @property
@@ -577,7 +574,9 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_FILTER_LEFT_TIME: self._filter_left_time,
                 ATTR_CLEANING_AREA: self._cleaning_area,
                 ATTR_CLEANING_TIME: self._cleaning_time,
-                ATTR_CLEANING_LOG_START: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._total_log_start)),
+                ATTR_CLEANING_LOG_START: time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime(self._total_log_start)
+                ),
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_time,
                 ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
                 ATTR_CLEANING_TOTAL_AREA: self._total_clean_area,
@@ -687,7 +686,7 @@ class MiroboVacuum(StateVacuumEntity):
         """Remote control the robot."""
         await self._try_command(
             "Unable to send remote control step command to the vacuum: %s",
-            self._vacuum.manual_control_once,
+            self._vacuum.remote_control_step,
             rotation,
             velocity,
         )
