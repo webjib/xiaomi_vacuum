@@ -414,10 +414,18 @@ class DreameVacuum(MiotDevice):
         payload = [{"piid": 1, "value": 21}]
         return self.start_sweeping_advanced(payload)
 
+    # TODO add repeat and other settings
     @command(click.argument("coords", type=str))
     def zone_cleanup(self, coords) -> None:
         """Start zone cleaning."""
         payload = [{"piid": 1, "value": 19}, {"piid": 10, "value": coords}]
+        return self.start_sweeping_advanced(payload)
+
+    # TODO find out the correct payload
+    @command()
+    def spot_cleanup(self) -> None:
+        """Start spot cleaning."""
+        payload = [{"piid": 1, "value": 20}]
         return self.start_sweeping_advanced(payload)
 
     @command()

@@ -84,7 +84,7 @@ ATTR_MD5 = "md5"
 ATTR_SIZE = "size"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
-SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
+SERVICE_CLEAN_SPOT = "vacuum_spot_clean"
 SERVICE_CLEAN_ZONE = "vacuum_clean_zone"
 SERVICE_CLEAN_ROOM_BY_ID = "vacuum_clean_room_by_id"
 SERVICE_SELECT_MAP = "vacuum_select_map"
@@ -101,7 +101,7 @@ INPUT_RC_ROTATION = "rotation"
 INPUT_RC_VELOCITY = "velocity"
 INPUT_MAP_ID = "map_id"
 INPUT_ZONE_ARRAY = "zone"
-INPUT_ZONE_REPEATER = "repeats"
+INPUT_REPEATS = "repeats"
 INPUT_ROOMS_ARRAY = "rooms"
 INPUT_CLEAN_MODE = "clean_mode"
 INPUT_MOP_MODE = "mop_mode"
@@ -337,10 +337,16 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     )
 
     platform.async_register_entity_service(
+        SERVICE_CLEAN_SPOT,
+        {},
+        MiroboVacuum.async_clean_spot.__name__,
+    )
+
+    platform.async_register_entity_service(
         SERVICE_CLEAN_ROOM_BY_ID,
         {
             vol.Required(INPUT_ROOMS_ARRAY): cv.ensure_list,
-            vol.Required(INPUT_ZONE_REPEATER): vol.All(
+            vol.Required(INPUT_REPEATS): vol.All(
                 vol.Coerce(int), vol.Clamp(min=1, max=10)
             ),
             vol.Required(INPUT_CLEAN_MODE): vol.All(
@@ -648,6 +654,13 @@ class MiroboVacuum(StateVacuumEntity):
             "Unable to send zoned_clean command to the vacuum: %s",
             self._vacuum.zone_cleanup,
             zone,
+        )
+
+    async def async_clean_spot(self):
+        """Clean selected area."""
+        await self._try_command(
+            "Unable to send spot_clean command to the vacuum: %s",
+            self._vacuum.spot_cleanup,
         )
 
     async def async_clean_room_by_id(self, rooms, repeats, clean_mode, mop_mode):
