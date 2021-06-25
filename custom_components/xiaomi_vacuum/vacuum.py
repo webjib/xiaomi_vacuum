@@ -308,7 +308,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     name = config.get(CONF_NAME)
 
     # Create handler
-    _LOGGER.info("Initializing with host %s (token %s...)", host, token)
+    _LOGGER.info("Initializing with host %s (token %s...)", host, token[:5])
     vacuum = DreameVacuum(host, token)
 
     mirobo = MiroboVacuum(name, vacuum)
