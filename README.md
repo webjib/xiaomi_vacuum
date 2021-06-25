@@ -1,7 +1,10 @@
 # xiaomi_vacuum (Dreame D9) integration for Homeassistant
 
 A custom component for Dreame Vacuum Robot D9 (dreame.vacuum.p2009) with support for features such as consumables' lifespan, water level, room and zone cleaning, etc.  
-This integration should also work for Dreame Vacuum Robot F9 (dreame.vacuum.p2008).
+This integration should also work for the following models:
+
+- Dreame Vacuum Robot F9 (dreame.vacuum.p2008)
+- Dreame Vacuum Robot L10 Pro (dreame.vacuum.p2029)
 
 > :warning: This is WIP. I'm still refactoring and cleaning up the code so some things might change, for the better :)
 
