@@ -2,6 +2,7 @@
 from functools import partial
 import logging
 import voluptuous as vol
+import time
 
 from .miio import DreameVacuum, DeviceException
 from .miio.dreamevacuum import (
@@ -78,10 +79,8 @@ ATTR_DND_STOP_TIME = "dnd_stop"
 ATTR_AUDIO_LANGUAGE = "audio_language"
 ATTR_AUDIO_VOLUME = "audio_volume"
 ATTR_TIMEZONE = "timezone"
-ATTR_LANGUAGE_ID = "lang_id"
-ATTR_URL = "url"
-ATTR_MD5 = "md5"
-ATTR_SIZE = "size"
+ATTR_CLEAN_CLOTH_TIP = "clean_cloth_tip"
+ATTR_SERIAL_NUMBER = "serial_number"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
 SERVICE_CLEAN_SPOT = "vacuum_spot_clean"
@@ -95,8 +94,8 @@ SERVICE_RESET_BRUSH_LIFE2 = "vacuum_reset_side_brush_life"
 SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
 SERVICE_WATER_LEVEL = "vacuum_set_water_level"
 SERVICE_INSTALL_VOICE_PACK = "vacuum_install_voice_pack"
+SERVICE_SET_CLEAN_CLOTH_TIP = "vacuum_set_clean_cloth_tip"
 
-INPUT_RC_DURATION = "duration"
 INPUT_RC_ROTATION = "rotation"
 INPUT_RC_VELOCITY = "velocity"
 INPUT_MAP_ID = "map_id"
@@ -105,6 +104,11 @@ INPUT_REPEATS = "repeats"
 INPUT_ROOMS_ARRAY = "rooms"
 INPUT_CLEAN_MODE = "clean_mode"
 INPUT_MOP_MODE = "mop_mode"
+INPUT_LANGUAGE_ID = "lang_id"
+INPUT_DELAY = "delay"
+INPUT_URL = "url"
+INPUT_MD5 = "md5"
+INPUT_SIZE = "size"
 
 STATE_MOPPING = "Mopping"
 STATE_UNKNWON = "Unknown"
@@ -304,7 +308,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     name = config.get(CONF_NAME)
 
     # Create handler
-    _LOGGER.info("Initializing with host %s (token %s...)", host, token)
+    _LOGGER.info("Initializing with host %s (token %s...)", host, token[:5])
     vacuum = DreameVacuum(host, token)
 
     mirobo = MiroboVacuum(name, vacuum)
@@ -388,11 +392,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     platform.async_register_entity_service(
         SERVICE_MOVE_REMOTE_CONTROL_STEP,
         {
-            vol.Optional(INPUT_RC_VELOCITY): vol.All(
-                vol.Coerce(int), vol.Clamp(min=-300, max=300)
+            vol.Required(INPUT_RC_VELOCITY): vol.All(
+                vol.Coerce(int), vol.Clamp(min=-300, max=100)
             ),
-            vol.Optional(INPUT_RC_ROTATION): vol.All(
-                vol.Coerce(int), vol.Clamp(min=-179, max=179)
+            vol.Required(INPUT_RC_ROTATION): vol.All(
+                vol.Coerce(int), vol.Clamp(min=-128, max=128)
             ),
         },
         MiroboVacuum.async_remote_control_move_step.__name__,
@@ -409,12 +413,20 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     platform.async_register_entity_service(
         SERVICE_INSTALL_VOICE_PACK,
         {
-            vol.Required(ATTR_LANGUAGE_ID): cv.string,
-            vol.Required(ATTR_URL): cv.string,
-            vol.Required(ATTR_MD5): cv.string,
-            vol.Required(ATTR_SIZE): cv.positive_int,
+            vol.Required(INPUT_LANGUAGE_ID): cv.string,
+            vol.Required(INPUT_URL): cv.string,
+            vol.Required(INPUT_MD5): cv.string,
+            vol.Required(INPUT_SIZE): cv.positive_int,
         },
         MiroboVacuum.async_install_voice_pack.__name__,
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_SET_CLEAN_CLOTH_TIP,
+        {
+            vol.Required(INPUT_DELAY): vol.Clamp(min=0, max=120),
+        },
+        MiroboVacuum.async_set_clean_cloth_tip.__name__,
     )
 
 
@@ -470,6 +482,10 @@ class MiroboVacuum(StateVacuumEntity):
 
         self._timezone = None
 
+        self._clean_cloth_tip = None
+
+        self._serial_number = None
+
     @property
     def name(self):
         """Return the name of the device."""
@@ -482,10 +498,7 @@ class MiroboVacuum(StateVacuumEntity):
             try:
                 return STATE_CODE_TO_STATE[self.vacuum_state]
             except KeyError:
-                _LOGGER.error(
-                    "STATE_CODE not supported: %s",
-                    self.vacuum_state,
-                )
+                _LOGGER.error("STATE_CODE not supported: %s", self.vacuum_state)
                 return None
 
     @property
@@ -495,39 +508,33 @@ class MiroboVacuum(StateVacuumEntity):
             try:
                 return ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown")
             except KeyError:
-                _LOGGER.error(
-                    "ERROR_CODE not supported: %s",
-                    self.vacuum_error,
-                )
+                _LOGGER.error("ERROR_CODE not supported: %s", self.vacuum_error)
                 return None
 
     @property
     def battery_level(self):
         """Return the battery level of the vacuum cleaner."""
-        if self.vacuum_state is not None:
-            return self.battery_percentage
+        return self.battery_percentage
 
     @property
     def fan_speed(self):
         """Return the fan speed of the vacuum cleaner."""
-        if self.vacuum_state is not None:
-            speed = self._current_fan_speed
-            if speed in self._fan_speeds_reverse:
+        if self._current_fan_speed is not None:
+            try:
                 return SPEED_CODE_TO_NAME.get(self._current_fan_speed, "Unknown")
-            _LOGGER.debug("Unable to find reverse for %s", speed)
-            return speed
+            except KeyError:
+                _LOGGER.error("SPEED_CODE not supported: %s", self._current_fan_speed)
+            return None
 
     @property
     def water_level(self):
         """Return the water level of the vacuum cleaner."""
-        if self.vacuum_state is not None:
-            water = self._current_water_level
-            if water in self._water_level_reverse:
+        if self._current_water_level is not None:
+            try:
                 return WATER_CODE_TO_NAME.get(self._current_water_level, "Unknown")
-
-            _LOGGER.debug("Unable to find reverse for %s", water)
-
-            return water
+            except KeyError:
+                _LOGGER.error("WATER_CODE not supported %s", self._current_water_level)
+            return None
 
     @property
     def water_level_list(self):
@@ -573,10 +580,14 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_FILTER_LEFT_TIME: self._filter_left_time,
                 ATTR_CLEANING_AREA: self._cleaning_area,
                 ATTR_CLEANING_TIME: self._cleaning_time,
-                ATTR_CLEANING_LOG_START: self._total_log_start,
+                ATTR_CLEANING_LOG_START: time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime(self._total_log_start)
+                ),
                 ATTR_CLEANING_TOTAL_TIME: self._total_clean_time,
                 ATTR_CLEANING_TOTAL_COUNT: self._total_clean_count,
                 ATTR_CLEANING_TOTAL_AREA: self._total_clean_area,
+                ATTR_CLEAN_CLOTH_TIP: self._clean_cloth_tip,
+                ATTR_SERIAL_NUMBER: self._serial_number,
                 ATTR_WATER_LEVEL: WATER_CODE_TO_NAME.get(
                     self._current_water_level, "Unknown"
                 ),
@@ -688,7 +699,7 @@ class MiroboVacuum(StateVacuumEntity):
         """Remote control the robot."""
         await self._try_command(
             "Unable to send remote control step command to the vacuum: %s",
-            self._vacuum.manual_control_once,
+            self._vacuum.remote_control_step,
             rotation,
             velocity,
         )
@@ -783,6 +794,14 @@ class MiroboVacuum(StateVacuumEntity):
             size,
         )
 
+    async def async_set_clean_cloth_tip(self, delay):
+        """Set reminder delay for cleaning mop, 0 to disable the tip"""
+        await self._try_command(
+            "Unable to set clean cloth reminder's delay pack: %s",
+            self._vacuum.set_cloth_cleaning_tip,
+            delay,
+        )
+
     def update(self):
         """Fetch state from the device."""
         try:
@@ -831,6 +850,10 @@ class MiroboVacuum(StateVacuumEntity):
             self._audio_language = state.audio_language
 
             self._timezone = state.timezone
+
+            self._clean_cloth_tip = state.clean_cloth_tip
+
+            self._serial_number = state.serial_number
 
         except OSError as exc:
             _LOGGER.error("Got OSError while fetching the state: %s", exc)
