@@ -16,6 +16,8 @@ This integration should also work for the following models:
     - [Example of install voice pack](#example-of-install-voice-pack)
   - [Remote controlling the robot](#remote-controlling-the-robot)
     - [Examples of calling remote control step service](#examples-of-calling-remote-control-step-service)
+  - [Defining virtual walls, no go zones, and no mop zones.](#defining-virtual-walls-no-go-zones-and-no-mop-zones)
+    - [Examples of virtual walls and no go zones](#examples-of-virtual-walls-and-no-go-zones)
   - [Developement Status](#developement-status)
     - [Current list of attributes:](#current-list-of-attributes)
     - [Current list of services:](#current-list-of-services)
@@ -152,6 +154,42 @@ data:
   velocity: 100
 ```
 
+## Defining virtual walls, no go zones, and no mop zones.
+
+In order to create or remove virtual walls, no go zones, and/or no mop zones the `vacuum_set_restricted_zone` service can be used.
+
+This service accepts the following parameters, they all have the same format [x<sub>1</sub>, y<sub>1</sub>, x<sub>2</sub>, y<sub>2</sub>].
+
+- walls: Virtual walls coordinates.
+- zones: No go zones coordinates.
+- mops: No mop zones coordinates.
+
+To remove all any of the three kind of restrictions leave it's field empty.
+
+### Examples of virtual walls and no go zones
+
+To only have two virtual walls and one no mop zones
+
+```yaml
+service: xiaomi_vacuum.vacuum_set_restricted_zone
+data:
+  entity_id: vacuum.dreame_d9
+  walls: "[819,-263,4424,2105],[-2001,-3050,-542,515]"
+  zones: ""
+  mops: "[3415,-967,3915,80]"
+```
+
+To remove every restriction:
+
+```yaml
+service: xiaomi_vacuum.vacuum_set_restricted_zone
+data:
+  entity_id: vacuum.dreame_d9
+  walls: ""
+  zones: ""
+  mops: ""
+```
+
 ## Developement Status
 
 ### Current list of attributes:
@@ -199,7 +237,8 @@ data:
 - xiaomi Vacuum: vacuum_set_restricted_zone
 - xiaomi Vacuum: vacuum_install_voice_pack
 - Xiaomi Vacuum: vacuum_set_clean_cloth_tip
-- Xiaomi Vacuum: vacuum_remote_control_move_step
+- Xiaomi Vacuum: vacuum_remote_control_move_step,
+- Xiaomi Vacuum: vacuum_set_restricted_zone
 
 ## Installation
 

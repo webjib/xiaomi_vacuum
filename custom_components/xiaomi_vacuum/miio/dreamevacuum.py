@@ -430,23 +430,15 @@ class DreameVacuum(MiotDevice):
     @command(click.argument("coords", type=str), click.argument("repeats", type=int))
     def zone_cleanup(self, coords, repeats) -> None:
         """Start zone cleaning."""
-        cleanlist = [
-            [
-                coords,
-                repeats,
-                0,  # TODO find out why these variables have no effect on fan speed and water level, perhaps find out what they do.
-                0,
-            ]
-        ]
 
         payload = [
             {"piid": 1, "value": 19},
             {
                 "piid": 10,
-                "value": '{"areas": ' + str(cleanlist).replace(" ", "") + "}",
+                "value": '{"areas": [[%(coords)s,%(repeats)d,0,0]]}'%{"coords":coords,"repeats":repeats},
+                #TODO find out why the two last parameters do not affect fan speed or water level / what do they do?
             },
         ]
-        payload = [{"piid": 1, "value": 19}, {"piid": 10, "value": coords}]
         return self.start_sweeping_advanced(payload)
 
     @command()
@@ -478,10 +470,19 @@ class DreameVacuum(MiotDevice):
         ]
         return self.start_sweeping_advanced(payload)
 
-    @command(click.argument("coords", type=str))
-    def set_restricted_zone(self, coords) -> None:
-        """Create restricted/mop zone"""
-        payload = [{"piid": 4, "value": coords}]
+    @command(
+        click.argument("walls", type=str),
+        click.argument("zones", type=str),
+        click.argument("mops", type=str),
+    )
+    def set_restricted_zone(self, walls, zones, mops) -> None:
+        """set restricted/ no-mop zone"""
+        value = '{"vw":{"line":[%(walls)s],"rect":[%(zones)s],"mop":[%(mops)s]}}' % {
+            "walls": walls,
+            "zones": zones,
+            "mops": mops,
+        }
+        payload = [{"piid": 4, "value": value}]
         return self.set_map(payload)
 
     @command()

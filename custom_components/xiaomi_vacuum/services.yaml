@@ -15,7 +15,7 @@ vacuum_clean_zone:
       example: "1"
 
 vacuum_set_restricted_zone:
-  description: Define a restricted zone.
+  description: Define a restricted zones and virtual walls.
   target:
     entity:
       domain: vacuum
@@ -23,9 +23,15 @@ vacuum_set_restricted_zone:
     entity_id:
       description: Name of the vacuum entity.
       example: "vacuum.dreame_d9"
-    zone:
-      description: Array of coordinates.
-      example: '"{"vw":{"line":[],"rect":[[819,-263,4424,2105],[-2001,-3050,-542,515]],"mop":[]}}"'
+    walls:
+      description: Virtual walls.
+      example: "[819,-263,4424,2105],[-2001,-3050,-542,515]"
+    zones:
+      description: No go zones.
+      example: "[819,-263,4424,2105],[-2001,-3050,-542,515]"
+    mops:
+      description: No mop zones.
+      example: "[819,-263,4424,2105],[-2001,-3050,-542,515]"
 
 vacuum_remote_control_move_step:
   description: Remotely control move the bot one step.

@@ -99,6 +99,9 @@ SERVICE_SET_CLEAN_CLOTH_TIP = "vacuum_set_clean_cloth_tip"
 INPUT_RC_ROTATION = "rotation"
 INPUT_RC_VELOCITY = "velocity"
 INPUT_MAP_ID = "map_id"
+INPUT_WALL_ARRAY = "walls"
+INPUT_ZONES_ARRAY = "zones"
+INPUT_MOP_ARRAY = "mops"
 INPUT_ZONE_ARRAY = "zone"
 INPUT_ZONE_REPEATER = "repeats"
 INPUT_ROOMS_ARRAY = "rooms"
@@ -365,7 +368,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     platform.async_register_entity_service(
         SERVICE_SET_RESTRICTED_ZONE,
         {
-            vol.Required(INPUT_ZONE_ARRAY): cv.string,
+            vol.Optional(INPUT_WALL_ARRAY): cv.string,
+            vol.Optional(INPUT_ZONES_ARRAY): cv.string,
+            vol.Optional(INPUT_MOP_ARRAY): cv.string,
         },
         MiroboVacuum.async_set_restricted_zone.__name__,
     )
@@ -658,7 +663,7 @@ class MiroboVacuum(StateVacuumEntity):
         """Stop the vacuum cleaner."""
         await self._try_command("Unable to stop: %s", self._vacuum.stop_sweeping)
 
-    async def async_clean_zone(self, zone,repeats):
+    async def async_clean_zone(self, zone, repeats):
         """Clean selected area."""
         await self._try_command(
             "Unable to send zoned_clean command to the vacuum: %s",
@@ -678,12 +683,14 @@ class MiroboVacuum(StateVacuumEntity):
             mop_mode,
         )
 
-    async def async_set_restricted_zone(self, zone, repeats=1):
+    async def async_set_restricted_zone(self, walls, zones, mops):
         """Create restricted zone."""
         await self._try_command(
             "Unable to send set_restricted_zone command to the vacuum: %s",
             self._vacuum.set_restricted_zone,
-            zone,
+            walls,
+            zones,
+            mops,
         )
 
     async def async_remote_control_move_step(
