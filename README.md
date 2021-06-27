@@ -132,6 +132,26 @@ This service requires the following attributes:
 
 ### Examples of calling remote control step service
 
+Rotating the bot 45° CCW
+
+```yaml
+service: xiaomi_vacuum.vacuum_remote_control_move_step
+data:
+  entity_id: vacuum.dreame_d9
+  rotation: 64
+  velocity: 0
+```
+
+moving forward and turning 45° CW at the same time
+
+```yaml
+service: xiaomi_vacuum.vacuum_remote_control_move_step
+data:
+  entity_id: vacuum.dreame_d9
+  rotation: -64
+  velocity: 100
+```
+
 ## Developement Status
 
 ### Current list of attributes:
