@@ -517,7 +517,7 @@ class DreameVacuum(MiotDevice):
     @command()
     def test_sound(self) -> None:
         """aiid 3 : in: [] -> out: []"""
-        return self.call_action_by("action_test_sound")
+        return self.call_action("action_test_sound")
 
     @command(click.argument("time", type=int))
     def set_cloth_cleaning_tip(self, delay):
