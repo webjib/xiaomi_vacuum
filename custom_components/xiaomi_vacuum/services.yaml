@@ -11,7 +11,7 @@ vacuum_clean_zone:
       description: Coordinates.
       example: "819,-263,4424,2105"
     repeats:
-      description: Number of cleaning repeats for each zone between 1 and 3. Does nothing at the moment!.
+      description: Number of cleaning repeats for each zone between 1 and 10.
       example: "1"
 
 vacuum_set_restricted_zone:

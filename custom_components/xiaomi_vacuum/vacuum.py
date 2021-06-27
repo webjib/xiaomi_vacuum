@@ -338,6 +338,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         SERVICE_CLEAN_ZONE,
         {
             vol.Required(INPUT_ZONE_ARRAY): cv.string,
+            vol.Required(INPUT_ZONE_REPEATER): vol.All(
+                vol.Coerce(int), vol.Clamp(min=1, max=10)
+            ),
         },
         MiroboVacuum.async_clean_zone.__name__,
     )
@@ -655,12 +658,13 @@ class MiroboVacuum(StateVacuumEntity):
         """Stop the vacuum cleaner."""
         await self._try_command("Unable to stop: %s", self._vacuum.stop_sweeping)
 
-    async def async_clean_zone(self, zone):
+    async def async_clean_zone(self, zone,repeats):
         """Clean selected area."""
         await self._try_command(
             "Unable to send zoned_clean command to the vacuum: %s",
             self._vacuum.zone_cleanup,
             zone,
+            repeats,
         )
 
     async def async_clean_room_by_id(self, rooms, repeats, clean_mode, mop_mode):

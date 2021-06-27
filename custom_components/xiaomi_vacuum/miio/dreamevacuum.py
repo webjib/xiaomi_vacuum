@@ -109,7 +109,7 @@ class ErrorCodes(IntEnum):
     Event_battery = 26
     Forward_looking = 27
     Gyroscope = 28
-    #TODO find out other missing codes
+    # TODO find out other missing codes
     RouteBlocked = 47
 
 
@@ -427,9 +427,25 @@ class DreameVacuum(MiotDevice):
         payload = [{"piid": 1, "value": 21}]
         return self.start_sweeping_advanced(payload)
 
-    @command(click.argument("coords", type=str))
-    def zone_cleanup(self, coords) -> None:
+    @command(click.argument("coords", type=str), click.argument("repeats", type=int))
+    def zone_cleanup(self, coords, repeats) -> None:
         """Start zone cleaning."""
+        cleanlist = [
+            [
+                coords,
+                repeats,
+                0,  # TODO find out why these variables have no effect on fan speed and water level, perhaps find out what they do.
+                0,
+            ]
+        ]
+
+        payload = [
+            {"piid": 1, "value": 19},
+            {
+                "piid": 10,
+                "value": '{"areas": ' + str(cleanlist).replace(" ", "") + "}",
+            },
+        ]
         payload = [{"piid": 1, "value": 19}, {"piid": 10, "value": coords}]
         return self.start_sweeping_advanced(payload)
 
