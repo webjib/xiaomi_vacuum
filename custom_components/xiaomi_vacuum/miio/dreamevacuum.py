@@ -174,8 +174,8 @@ class OperatingMode(IntEnum):
     SelfTestMode = 15
     FactoryFuncTest = 16
     StandbyMode = 17
-    AreaClean = 18
-    CustomAreaClean = 19
+    RoomClean = 18
+    ZoneClean = 19
     SpotClean = 20
     FastMapping = 21
 
@@ -411,21 +411,21 @@ class DreameVacuum(MiotDevice):
     @command()
     def fast_map(self) -> None:
         """Start fast mapping."""
-        payload = [{"piid": 1, "value": 21}]
+        payload = [{"piid": 1, "value": OperatingMode.FastMapping.value}]
         return self.start_sweeping_advanced(payload)
 
     # TODO add repeat and other settings
     @command(click.argument("coords", type=str))
     def zone_cleanup(self, coords) -> None:
         """Start zone cleaning."""
-        payload = [{"piid": 1, "value": 19}, {"piid": 10, "value": coords}]
+        payload = [{"piid": 1, "value": OperatingMode.ZoneClean.value}, {"piid": 10, "value": coords}]
         return self.start_sweeping_advanced(payload)
 
     # TODO find out the correct payload
     @command()
     def spot_cleanup(self) -> None:
         """Start spot cleaning."""
-        payload = [{"piid": 1, "value": 20}]
+        payload = [{"piid": 1, "value": OperatingMode.SpotClean.value},{"piid": 10,"value":"{ }"}]
         return self.start_sweeping_advanced(payload)
 
     @command()
@@ -449,7 +449,7 @@ class DreameVacuum(MiotDevice):
                 ]
             )
         payload = [
-            {"piid": 1, "value": 18},
+            {"piid": 1, "value": OperatingMode.RoomClean.value},
             {
                 "piid": 10,
                 "value": '{"selects": ' + str(cleanlist).replace(" ", "") + "}",

@@ -254,8 +254,8 @@ OPERATING_MODE_CODE_TO_NAME = {
     OperatingMode.SelfTestMode: OPERATION_SELF_TEST_MODE,
     OperatingMode.FactoryFuncTest: OPERATION_FACTORY_FUNC_TEST,
     OperatingMode.StandbyMode: OPERATION_STANDBY_MODE,
-    OperatingMode.AreaClean: OPERATION_AREA_CLEAN,
-    OperatingMode.CustomAreaClean: OPERATION_CUSTOM_AREA_CLEAN,
+    OperatingMode.RoomClean: OPERATION_AREA_CLEAN,
+    OperatingMode.ZoneClean: OPERATION_CUSTOM_AREA_CLEAN,
     OperatingMode.SpotClean: OPERATION_SPOT_CLEAN,
     OperatingMode.FastMapping: OPERATION_FAST_MAPPING,
 }
