@@ -109,6 +109,8 @@ class ErrorCodes(IntEnum):
     Event_battery = 26
     Forward_looking = 27
     Gyroscope = 28
+    #TODO find out other missing codes
+    RouteBlocked = 47
 
 
 class VacuumStatus(IntEnum):

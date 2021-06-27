@@ -184,6 +184,7 @@ ERROR_CAMERA_FAULT = "camera fault"
 ERROR_EVENT_BATTERY = "event battery"
 ERROR_FORWARD_LOOKING = "forward looking"
 ERROR_GYROSCOPE = "gyroscope"
+ERROR_ROUTE_BLOCKED = "route blocked"
 
 SUPPORT_XIAOMI = (
     SUPPORT_STATE
@@ -295,6 +296,7 @@ ERROR_CODE_TO_ERROR = {
     ErrorCodes.Event_battery: ERROR_EVENT_BATTERY,
     ErrorCodes.Forward_looking: ERROR_FORWARD_LOOKING,
     ErrorCodes.Gyroscope: ERROR_GYROSCOPE,
+    ErrorCodes.RouteBlocked: ERROR_ROUTE_BLOCKED,
 }
 
 
