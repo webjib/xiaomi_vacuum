@@ -802,15 +802,14 @@ class MiroboVacuum(StateVacuumEntity):
         )
 
     async def async_set_audio_volume(self, volume):
-        """Fast map."""
+        """Set audio volume"""
         await self._try_command(
             "Unable to set the volume: %s",
             self._vacuum.set_audio_volume,
             volume,
         )
         await self._try_command(
-            "Unable to play the sound test: %s",
-            self._vacuum.test_sound
+            "Unable to play the sound test: %s", self._vacuum.test_sound
         )
 
     async def async_install_voice_pack(self, lang_id, url, md5, size, **kwargs):
