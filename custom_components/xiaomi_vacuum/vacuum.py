@@ -42,11 +42,14 @@ _LOGGER = logging.getLogger(__name__)
 DEFAULT_NAME = "Xiaomi Vacuum cleaner"
 DATA_KEY = "vacuum.xiaomi_vacuum"
 
+CONF_NO_SLEEP_DOCKED = "no_sleep_when_docked"
+
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_TOKEN): vol.All(str, vol.Length(min=32, max=32)),
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Optional(CONF_NO_SLEEP_DOCKED, default=False): cv.boolean,
     },
     extra=vol.ALLOW_EXTRA,
 )
@@ -311,12 +314,13 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     host = config.get(CONF_HOST)
     token = config.get(CONF_TOKEN)
     name = config.get(CONF_NAME)
+    no_sleep_when_docked = config.get(CONF_NO_SLEEP_DOCKED)
 
     # Create handler
     _LOGGER.info("Initializing with host %s (token %s...)", host, token[:5])
     vacuum = DreameVacuum(host, token)
 
-    mirobo = MiroboVacuum(name, vacuum)
+    mirobo = MiroboVacuum(name, vacuum, no_sleep_when_docked)
     hass.data[DATA_KEY][host] = mirobo
 
     async_add_entities([mirobo], update_before_add=True)
@@ -437,14 +441,16 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class MiroboVacuum(StateVacuumEntity):
     """Representation of a Xiaomi Vacuum cleaner robot."""
 
-    def __init__(self, name, vacuum):
+    def __init__(self, name, vacuum, no_sleep_when_docked):
         """Initialize the Xiaomi vacuum cleaner robot handler."""
         self._name = name
         self._vacuum: DreameVacuum = vacuum
+        self._no_sleep_when_docked = no_sleep_when_docked
 
         self._fan_speeds = None
         self._fan_speeds_reverse = None
 
+        self.vacuum_last_state = None
         self.vacuum_state = None
         self.vacuum_error = None
         self.battery_percentage = None
@@ -806,7 +812,13 @@ class MiroboVacuum(StateVacuumEntity):
         """Fetch state from the device."""
         try:
             state = self._vacuum.status()
-            self.vacuum_state = state.status
+            if (
+                not self._no_sleep_when_docked
+                or state.status != VacuumStatus.Idle
+                or self.vacuum_state != VacuumStatus.Charging
+            ):
+                self.vacuum_last_state = self.vacuum_state
+                self.vacuum_state = state.status
             self.vacuum_error = state.error
 
             self._fan_speeds = SPEED_CODE_TO_NAME

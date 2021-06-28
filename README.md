@@ -210,6 +210,8 @@ vacuum:
     name: <name>
 ```
 
+The optional configuration parameter `no_sleep_when_docked: true` can be added. In that case the status of the bot will not change to idle when it is docked. The bot will still go to sleep mode, but it's status will still show up as docked. `no_sleep_when_docked` is `false` by default.
+
 To retrieve the token, follow the default integration <a href="https://www.home-assistant.io/integrations/vacuum.xiaomi_miio/#retrieving-the-access-token">instructions</a>.
 
 ## Lovelace Card

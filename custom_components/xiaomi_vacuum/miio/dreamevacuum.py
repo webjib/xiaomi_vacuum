@@ -435,8 +435,9 @@ class DreameVacuum(MiotDevice):
             {"piid": 1, "value": 19},
             {
                 "piid": 10,
-                "value": '{"areas": [[%(coords)s,%(repeats)d,0,0]]}'%{"coords":coords,"repeats":repeats},
-                #TODO find out why the two last parameters do not affect fan speed or water level / what do they do?
+                "value": '{"areas": [[%(coords)s,%(repeats)d,0,0]]}'
+                % {"coords": coords, "repeats": repeats},
+                # TODO find out why the two last parameters do not affect fan speed or water level / what do they do?
             },
         ]
         return self.start_sweeping_advanced(payload)
