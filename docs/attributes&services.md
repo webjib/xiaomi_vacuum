@@ -44,6 +44,7 @@
 - xiaomi Vacuum: vacuum_clean_zone
 - xiaomi Vacuum: vacuum_set_restricted_zone
 - xiaomi Vacuum: vacuum_install_voice_pack
+- xiaomi Vacuum: vacuum_set_audio_volume
 - Xiaomi Vacuum: vacuum_set_clean_cloth_tip
 - Xiaomi Vacuum: vacuum_remote_control_move_step,
 - Xiaomi Vacuum: vacuum_set_restricted_zone

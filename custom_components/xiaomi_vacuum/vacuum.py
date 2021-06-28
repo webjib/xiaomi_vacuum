@@ -98,6 +98,7 @@ SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
 SERVICE_WATER_LEVEL = "vacuum_set_water_level"
 SERVICE_INSTALL_VOICE_PACK = "vacuum_install_voice_pack"
 SERVICE_SET_CLEAN_CLOTH_TIP = "vacuum_set_clean_cloth_tip"
+SERVICE_SET_AUDIO_VOLUME = "vacuum_set_audio_volume"
 
 INPUT_RC_ROTATION = "rotation"
 INPUT_RC_VELOCITY = "velocity"
@@ -115,6 +116,7 @@ INPUT_DELAY = "delay"
 INPUT_URL = "url"
 INPUT_MD5 = "md5"
 INPUT_SIZE = "size"
+INPUT_VOLUME = "volume"
 
 STATE_MOPPING = "Mopping"
 STATE_UNKNWON = "Unknown"
@@ -416,6 +418,16 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             vol.Required(ATTR_WATER_LEVEL): cv.string,
         },
         MiroboVacuum.async_set_water_level.__name__,
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_SET_AUDIO_VOLUME,
+        {
+            vol.Required(INPUT_VOLUME): vol.All(
+                vol.Coerce(int), vol.Clamp(min=0, max=100)
+            ),
+        },
+        MiroboVacuum.async_set_audio_volume.__name__,
     )
 
     platform.async_register_entity_service(
@@ -787,6 +799,18 @@ class MiroboVacuum(StateVacuumEntity):
                 return
         await self._try_command(
             "Unable to set water level: %s", self._vacuum.set_water_level, water_level
+        )
+
+    async def async_set_audio_volume(self, volume):
+        """Fast map."""
+        await self._try_command(
+            "Unable to set the volume: %s",
+            self._vacuum.set_audio_volume,
+            volume,
+        )
+        await self._try_command(
+            "Unable to play the sound test: %s",
+            self._vacuum.test_sound
         )
 
     async def async_install_voice_pack(self, lang_id, url, md5, size, **kwargs):

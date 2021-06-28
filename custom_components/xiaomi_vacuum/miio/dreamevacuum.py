@@ -534,9 +534,14 @@ class DreameVacuum(MiotDevice):
         )
         self.set_property("property_voice", value)
 
+    @command(click.argument("volume", type=int))
+    def set_audio_volume(self, volume):
+        """Set voice audio volume"""
+        return self.set_property("property_audio_volume", volume)
+
     @command()
     def test_sound(self) -> None:
-        """aiid 3 : in: [] -> out: []"""
+        """Plays a confirmation sound to check the volume"""
         return self.call_action("action_test_sound")
 
     @command(click.argument("time", type=int))

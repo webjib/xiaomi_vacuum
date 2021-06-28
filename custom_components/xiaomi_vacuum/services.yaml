@@ -236,3 +236,21 @@ vacuum_select_map:
       selector:
         number:
           mode: box
+
+vacuum_set_audio_volume:
+  description: Set voice feedback's audio volume.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    volume:
+      description: Volume level.
+      example: 80
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 100
