@@ -599,7 +599,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_MAP_ID_LIST: dict(
                     zip(
                         list(
-                            "map_id_" + str(x)
+                            "map_" + str(x)
                             for x in range(len(self._schedule.split(";")))
                             if len(self._schedule) > 0
                         ),
@@ -613,7 +613,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ATTR_ROOM_LIST: dict(
                     zip(
                         list(
-                            "map_id_" + str(x)
+                            "map_" + str(x)
                             for x in range(len(self._schedule.split(";")))
                             if len(self._schedule) > 0
                         ),

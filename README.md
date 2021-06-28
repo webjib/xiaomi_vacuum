@@ -38,7 +38,7 @@ The resulting Homeassistant room list attribute:
 
 ```yaml
 room_list:
-  map_id_0:
+  map_0:
     - B
     - E
     - D
