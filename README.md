@@ -6,8 +6,6 @@ This integration should also work for the following models:
 - Dreame Vacuum Robot F9 (dreame.vacuum.p2008)
 - Dreame Vacuum Robot L10 Pro (dreame.vacuum.p2029)
 
-> :warning: This is WIP. I'm still refactoring and cleaning up the code so some things might change, for the better :)
-
 - [xiaomi_vacuum (Dreame D9) integration for Homeassistant](#xiaomi_vacuum-dreame-d9-integration-for-homeassistant)
   - [Room cleaning support](#room-cleaning-support)
     - [Example of cleaning schedule:](#example-of-cleaning-schedule)
@@ -19,8 +17,6 @@ This integration should also work for the following models:
   - [Defining virtual walls, no go zones, and no mop zones.](#defining-virtual-walls-no-go-zones-and-no-mop-zones)
     - [Examples of virtual walls and no go zones](#examples-of-virtual-walls-and-no-go-zones)
   - [Developement Status](#developement-status)
-    - [Current list of attributes:](#current-list-of-attributes)
-    - [Current list of services:](#current-list-of-services)
   - [Installation](#installation)
   - [Lovelace Card](#lovelace-card)
   - [Credit and Contribution](#credit-and-contribution)
@@ -192,53 +188,10 @@ data:
 
 ## Developement Status
 
-### Current list of attributes:
-
-- fan_speed_list
-- battery_level
-- battery_icon
-- fan_speed
-- status
-- waterbox
-- operation_status
-- operating_mode
-- error
-- dnd_enabled
-- dnd_start
-- dnd_stop
-- audio_volume
-- audio_language
-- timezone
-- main_brush_time_left
-- side_brush_time_left
-- filter_time_left
-- cleaning_area
-- cleaning_time
-- first_time_cleaning
-- total_cleaning_time
-- total_cleaning_count
-- total_cleaning_area
-- water_level: high
-- water_level_list
-- clean_cloth_tip
-- serial_number
-- map_id_list<sup>1</sup>
-- room_list<sup>1</sup>
-
-### Current list of services:
-
-- Xiaomi Vacuum: vacuum_set_water_level
-- Xiaomi Vacuum: vacuum_reset_filter_life
-- Xiaomi Vacuum: vacuum_reset_main_brush_life
-- Xiaomi Vacuum: vacuum_reset_side_brush_life
-- Xiaomi Vacuum: vacuum_select_map<sup>1</sup>
-- Xiaomi Vacuum: vacuum_clean_room_by_id<sup>1</sup>
-- xiaomi Vacuum: vacuum_clean_zone
-- xiaomi Vacuum: vacuum_set_restricted_zone
-- xiaomi Vacuum: vacuum_install_voice_pack
-- Xiaomi Vacuum: vacuum_set_clean_cloth_tip
-- Xiaomi Vacuum: vacuum_remote_control_move_step,
-- Xiaomi Vacuum: vacuum_set_restricted_zone
+I tried to expose as many of the device's properties as possible, in case someone wants to use them in their scripts, automations, etc.
+Almost all of the services have proper selector definitions, so that it is possible to use the UI editor.
+A complete list of supported attributes and services can be found here:
+[Complete List of Attributes and Services](./docs/attributes&services.md)
 
 ## Installation
 
