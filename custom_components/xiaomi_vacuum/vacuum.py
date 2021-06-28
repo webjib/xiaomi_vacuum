@@ -89,8 +89,8 @@ SERVICE_CLEAN_ROOM_BY_ID = "vacuum_clean_room_by_id"
 SERVICE_SELECT_MAP = "vacuum_select_map"
 SERVICE_SET_RESTRICTED_ZONE = "vacuum_set_restricted_zone"
 SERVICE_RESET_FILTER_LIFE = "vacuum_reset_filter_life"
-SERVICE_RESET_BRUSH_LIFE = "vacuum_reset_main_brush_life"
-SERVICE_RESET_BRUSH_LIFE2 = "vacuum_reset_side_brush_life"
+SERVICE_RESET_MAIN_BRUSH_LIFE = "vacuum_reset_main_brush_life"
+SERVICE_RESET_SIDE_BRUSH_LIFE2 = "vacuum_reset_side_brush_life"
 SERVICE_MOVE_REMOTE_CONTROL_STEP = "vacuum_remote_control_move_step"
 SERVICE_WATER_LEVEL = "vacuum_set_water_level"
 SERVICE_INSTALL_VOICE_PACK = "vacuum_install_voice_pack"
@@ -332,7 +332,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     platform.async_register_entity_service(
         SERVICE_SELECT_MAP,
         {
-            vol.Optional(INPUT_MAP_ID): cv.positive_int,
+            vol.Required(INPUT_MAP_ID): cv.positive_int,
         },
         MiroboVacuum.async_select_map.__name__,
     )
@@ -382,13 +382,13 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     )
 
     platform.async_register_entity_service(
-        SERVICE_RESET_BRUSH_LIFE,
+        SERVICE_RESET_MAIN_BRUSH_LIFE,
         {},
         MiroboVacuum.async_reset_main_brush_life.__name__,
     )
 
     platform.async_register_entity_service(
-        SERVICE_RESET_BRUSH_LIFE2,
+        SERVICE_RESET_SIDE_BRUSH_LIFE2,
         {},
         MiroboVacuum.async_reset_side_brush_life.__name__,
     )
@@ -683,7 +683,7 @@ class MiroboVacuum(StateVacuumEntity):
             mop_mode,
         )
 
-    async def async_set_restricted_zone(self, walls, zones, mops):
+    async def async_set_restricted_zone(self, walls="", zones="", mops=""):
         """Create restricted zone."""
         await self._try_command(
             "Unable to send set_restricted_zone command to the vacuum: %s",

@@ -10,12 +10,20 @@ vacuum_clean_zone:
     zone:
       description: Coordinates.
       example: "819,-263,4424,2105"
+      required: true
+      selector:
+        text:
     repeats:
-      description: Number of cleaning repeats for each zone between 1 and 10.
-      example: "1"
+      description: Number of cleaning passes for each zone between 1 and 10.
+      example: 1
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 10
 
 vacuum_set_restricted_zone:
-  description: Define a restricted zones and virtual walls.
+  description: Define virtual walls, restricted zones, and/or no mop zones.
   target:
     entity:
       domain: vacuum
@@ -26,12 +34,21 @@ vacuum_set_restricted_zone:
     walls:
       description: Virtual walls.
       example: "[819,-263,4424,2105],[-2001,-3050,-542,515]"
+      required: false
+      selector:
+        text:
     zones:
       description: No go zones.
       example: "[819,-263,4424,2105],[-2001,-3050,-542,515]"
+      required: false
+      selector:
+        text:
     mops:
       description: No mop zones.
       example: "[819,-263,4424,2105],[-2001,-3050,-542,515]"
+      required: false
+      selector:
+        text:
 
 vacuum_remote_control_move_step:
   description: Remotely control move the bot one step.
@@ -44,11 +61,22 @@ vacuum_remote_control_move_step:
       example: "vacuum.dreame_d9"
     rotation:
       description: Turn in binary degrees between -128 and 128.
-      example: "64"
+      example: 64
+      required: true
+      selector:
+        number:
+          min: -128
+          max: 128
+          mode: box
     velocity:
       description: Move speed, from 100 (forward) to -300 (backward)
-      example: "100"
-
+      example: 100
+      required: true
+      selector:
+        number:
+          min: -300
+          max: 100
+          mode: box
 vacuum_set_water_level:
   description: Set water level for mopping.
   target:
@@ -56,7 +84,7 @@ vacuum_set_water_level:
       domain: vacuum
   fields:
     water_level:
-      description: water level, 1:low, 2:medium, 3:high
+      description: water level, 1:Low, 2:Medium, 3:High. Numbers are also accepted.
       default: "Medium"
       required: true
       selector:
@@ -79,18 +107,27 @@ vacuum_install_voice_pack:
       description: "Language ID of this pack"
       example: "DE"
       required: true
+      selector:
+        text:
     url:
       description: "Url of this pack it should be reachable by the vacuum bot"
       example: "http://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2009/voices/package/deyu.tar.gz"
       required: true
+      selector:
+        text:
     md5:
       description: "MD5 checksum of the language pack"
       example: "d25986c1f608c0897475707e77d856f9"
       required: true
+      selector:
+        text:
     size:
       description: "Size of the language pack in bytes"
       example: 4067845
       required: true
+      selector:
+        number:
+          mode: box
 
 vacuum_set_clean_cloth_tip:
   description: Set delay of clean cloth reminder.
@@ -109,3 +146,93 @@ vacuum_set_clean_cloth_tip:
         number:
           min: 0
           max: 120
+          mode: box
+
+vacuum_clean_room_by_id:
+  description: Start the cleaning operation in the selected rooms.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    rooms:
+      description: List of rooms to be cleaned. Only room's Character or an array of room's character, repeats, fan speed and mop mode to override the default values per room.
+      example: A
+      required: true
+      selector:
+        object:
+    repeats:
+      description: Number of cleaning passes for every selected room (unless it is overridden by rooms parameter).
+      example: 2
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 10
+    clean_mode:
+      description: Fan speed for every selected room (unless it is overridden by rooms parameter).
+      example: 1
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 4
+          mode: box
+    mop_mode:
+      description: Water level for every selected room (unless it is overridden by rooms parameter).
+      example: 3
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: box
+
+vacuum_reset_filter_life:
+  description: Reset filter life to 100%.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+
+vacuum_reset_main_brush_life:
+  description: Reset main brush life to 100%.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+
+vacuum_reset_side_brush_life:
+  description: Reset side brush life to 100%.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+
+vacuum_select_map:
+  description: Select current map. Used when havving multiple maps/floors.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    map_id:
+      description: id of the map to be selected.
+      example: 14
+      required: true
+      selector:
+        number:
+          mode: box
