@@ -19,8 +19,11 @@
 - audio_language
 - timezone
 - main_brush_time_left
+- main_brush_life_percent
 - side_brush_time_left
+- side_brush_life_percent
 - filter_time_left
+- filter_life_percent
 - cleaning_area
 - cleaning_time
 - first_time_cleaning

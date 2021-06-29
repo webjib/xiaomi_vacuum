@@ -335,10 +335,10 @@ class MiroboVacuum(StateVacuumEntity):
                     self._current_fan_speed, "Unknown"
                 ),
                 ATTR_MAIN_BRUSH_LEFT_TIME: self._main_brush_time_left,
-                # ATTR_MAIN_BRUSH_LIFE_LEVEL: self._main_brush_life_level,
+                ATTR_MAIN_BRUSH_LIFE_LEVEL: self._main_brush_life_level,
                 ATTR_SIDE_BRUSH_LEFT_TIME: self._side_brush_time_left,
-                # ATTR_SIDE_BRUSH_LIFE_LEVEL: self._side_brush_life_level,
-                # ATTR_FILTER_LIFE_LEVEL: self._filter_life_level,
+                ATTR_SIDE_BRUSH_LIFE_LEVEL: self._side_brush_life_level,
+                ATTR_FILTER_LIFE_LEVEL: self._filter_life_level,
                 ATTR_FILTER_LEFT_TIME: self._filter_left_time,
                 ATTR_CLEANING_AREA: self._cleaning_area,
                 ATTR_CLEANING_TIME: self._cleaning_time,
