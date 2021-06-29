@@ -3,6 +3,7 @@ from functools import partial
 import logging
 import voluptuous as vol
 import time
+import re
 
 from .miio import DreameVacuum, DeviceException
 from .miio.dreamevacuum import (
@@ -100,6 +101,7 @@ SERVICE_WATER_LEVEL = "vacuum_set_water_level"
 SERVICE_INSTALL_VOICE_PACK = "vacuum_install_voice_pack"
 SERVICE_SET_CLEAN_CLOTH_TIP = "vacuum_set_clean_cloth_tip"
 SERVICE_SET_AUDIO_VOLUME = "vacuum_set_audio_volume"
+SERVICE_DND = "vacuum_do_not_disturb"
 
 INPUT_RC_ROTATION = "rotation"
 INPUT_RC_VELOCITY = "velocity"
@@ -118,6 +120,9 @@ INPUT_URL = "url"
 INPUT_MD5 = "md5"
 INPUT_SIZE = "size"
 INPUT_VOLUME = "volume"
+INPUT_DND_ENABLED = "dnd_enabled"
+INPUT_DND_START = "dnd_start"
+INPUT_DND_STOP = "dnd_stop"
 
 STATE_MOPPING = "Mopping"
 STATE_UNKNWON = "Unknown"
@@ -450,6 +455,16 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         MiroboVacuum.async_set_clean_cloth_tip.__name__,
     )
 
+    platform.async_register_entity_service(
+        SERVICE_DND,
+        {
+            vol.Optional(INPUT_DND_ENABLED): cv.boolean,
+            vol.Optional(INPUT_DND_START): cv.string,
+            vol.Optional(INPUT_DND_STOP): cv.string,
+        },
+        MiroboVacuum.async_do_not_disturb.__name__,
+    )
+
 
 class MiroboVacuum(StateVacuumEntity):
     """Representation of a Xiaomi Vacuum cleaner robot."""
@@ -510,6 +525,8 @@ class MiroboVacuum(StateVacuumEntity):
         self._clean_cloth_tip = None
 
         self._serial_number = None
+
+        self.time_pattern = re.compile("([0-1][0-9]|2[0-3]):[0-5][0-9]$")
 
     @property
     def name(self):
@@ -803,6 +820,33 @@ class MiroboVacuum(StateVacuumEntity):
         await self._try_command(
             "Unable to set water level: %s", self._vacuum.set_water_level, water_level
         )
+
+    async def async_do_not_disturb(self, dnd_enabled="", dnd_start="", dnd_stop=""):
+        """Set do not disturb function"""
+        if dnd_enabled != "" and (
+            bool(dnd_enabled) == True or bool(dnd_enabled) == False
+        ):
+            await self._try_command(
+                "Unable to set DnD mode: %s", self._vacuum.set_dnd, dnd_enabled
+            )
+        if dnd_start:
+            if re.match(self.time_pattern, dnd_start):
+                await self._try_command(
+                    "Unable to set DnD start time: %s",
+                    self._vacuum.set_dnd_start,
+                    dnd_start,
+                )
+            else:
+                _LOGGER.error("DnD start time is not valid: (%s).", dnd_start)
+        if dnd_stop:
+            if re.match(self.time_pattern, dnd_stop):
+                await self._try_command(
+                    "Unable to set DnD stop time: %s",
+                    self._vacuum.set_dnd_stop,
+                    dnd_stop,
+                )
+            else:
+                _LOGGER.error("DnD stop time is not valid: (%s).", dnd_stop)
 
     async def async_set_audio_volume(self, volume):
         """Set audio volume"""

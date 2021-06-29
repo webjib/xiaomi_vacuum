@@ -49,3 +49,4 @@
 - Xiaomi Vacuum: vacuum_set_clean_cloth_tip
 - Xiaomi Vacuum: vacuum_remote_control_move_step,
 - Xiaomi Vacuum: vacuum_set_restricted_zone
+- Xiaomi Vacuum: vacuum_do_not_disturb

@@ -432,10 +432,24 @@ class DreameVacuum(MiotDevice):
         payload = [{"piid": 1, "value": 21}]
         return self.start_sweeping_advanced(payload)
 
+    @command()
+    def set_dnd(self, dnd_enabled) -> None:
+        """Enable or disable do not disturb."""
+        return self.set_property("property_dnd_enabled", dnd_enabled)
+
+    @command()
+    def set_dnd_start(self, dnd_start) -> None:
+        """set start time for do not disturb function."""
+        return self.set_property("property_dnd_start_time", dnd_start)
+
+    @command()
+    def set_dnd_stop(self, dnd_stop) -> None:
+        """set end time for do not disturb function."""
+        return self.set_property("property_dnd_stop_time", dnd_stop)
+
     @command(click.argument("coords", type=str), click.argument("repeats", type=int))
     def zone_cleanup(self, coords, repeats) -> None:
         """Start zone cleaning."""
-
         payload = [
             {"piid": 1, "value": 19},
             {

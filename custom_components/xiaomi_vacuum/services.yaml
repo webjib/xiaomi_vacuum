@@ -254,3 +254,31 @@ vacuum_set_audio_volume:
         number:
           min: 0
           max: 100
+
+vacuum_do_not_disturb:
+  description: Enable/disable DnD functionallity and/or setting its start and end time.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    dnd_enabled:
+      description: "Enable or disable DnD feature"
+      example: "true"
+      required: false
+      selector:
+        boolean:
+    dnd_start:
+      description: "Start time of DnD feature."
+      example: "22:00"
+      required: false
+      selector:
+        text:
+    dnd_stop:
+      description: "Start time of DnD feature."
+      example: "6:30"
+      required: false
+      selector:
+        text:
