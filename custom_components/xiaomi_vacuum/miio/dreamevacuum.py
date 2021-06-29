@@ -29,6 +29,7 @@ _MAPPING: MiotMapping = {
     "property_water_level": {"siid": 4, "piid": 5},
     "property_waterbox_status": {"siid": 4, "piid": 6},
     "property_operation_status": {"siid": 4, "piid": 7},
+    "property_carpet_boost": {"siid": 4, "piid": 12},
     "property_serial_number": {"siid": 4, "piid": 14},
     "property_remote_control_step": {"siid": 4, "piid": 15},
     "property_clean_cloth_tip": {"siid": 4, "piid": 16},
@@ -278,6 +279,10 @@ class DreameVacuumStatus(DeviceStatusContainer):
                 "Unknown operation_status (%s)", self.data["property_operation_status"]
             )
             return OperationStatus.Unknown
+
+    @property
+    def carpet_boost(self) -> bool:
+        return bool(self.data["property_carpet_boost"])
 
     @property
     def dnd_enabled(self) -> bool:

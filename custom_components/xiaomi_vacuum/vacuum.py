@@ -84,6 +84,7 @@ ATTR_AUDIO_VOLUME = "audio_volume"
 ATTR_TIMEZONE = "timezone"
 ATTR_CLEAN_CLOTH_TIP = "clean_cloth_tip"
 ATTR_SERIAL_NUMBER = "serial_number"
+ATTR_CARPET_BOOST = "carpet_boost"
 
 SERVICE_FAST_MAP = "vacuum_fast_map"
 SERVICE_SPOT_CLEAN = "vacuum_spot_clean"
@@ -495,6 +496,8 @@ class MiroboVacuum(StateVacuumEntity):
         self._operating_mode = None
         self._schedule = ""
 
+        self._carpet_boost = None
+
         self._dnd_enabled = None
         self._dnd_start_time = None
         self._dnd_stop_time = None
@@ -584,7 +587,7 @@ class MiroboVacuum(StateVacuumEntity):
                     self._operating_mode, "Unknown"
                 ),
                 ATTR_ERROR: ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
-                ATTR_ERROR: ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
+                ATTR_CARPET_BOOST: self._carpet_boost,
                 ATTR_DND_ENABLED: self._dnd_enabled,
                 ATTR_DND_START_TIME: self._dnd_start_time,
                 ATTR_DND_STOP_TIME: self._dnd_stop_time,
@@ -876,6 +879,8 @@ class MiroboVacuum(StateVacuumEntity):
             self._operation_status = state.operation_status
             self._operating_mode = state.operating_mode
             self._schedule = state.schedule if state.schedule is not None else ""
+
+            self._carpet_boost = state.carpet_boost
 
             self._dnd_enabled = state.dnd_enabled
             self._dnd_start_time = state.dnd_start_time

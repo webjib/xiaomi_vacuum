@@ -11,6 +11,7 @@
 - operation_status
 - operating_mode
 - error
+- carpet_boost
 - dnd_enabled
 - dnd_start
 - dnd_stop
