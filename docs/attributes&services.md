@@ -50,3 +50,4 @@
 - Xiaomi Vacuum: vacuum_remote_control_move_step,
 - Xiaomi Vacuum: vacuum_set_restricted_zone
 - Xiaomi Vacuum: vacuum_do_not_disturb
+- Xiaomi Vacuum: vacuum_set_carpet_boost

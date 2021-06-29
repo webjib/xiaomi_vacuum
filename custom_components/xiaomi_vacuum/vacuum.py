@@ -102,6 +102,8 @@ SERVICE_INSTALL_VOICE_PACK = "vacuum_install_voice_pack"
 SERVICE_SET_CLEAN_CLOTH_TIP = "vacuum_set_clean_cloth_tip"
 SERVICE_SET_AUDIO_VOLUME = "vacuum_set_audio_volume"
 SERVICE_DND = "vacuum_do_not_disturb"
+SERVICE_SET_CARPET_BOOST = "vacuum_set_carpet_boost"
+
 
 INPUT_RC_ROTATION = "rotation"
 INPUT_RC_VELOCITY = "velocity"
@@ -123,6 +125,7 @@ INPUT_VOLUME = "volume"
 INPUT_DND_ENABLED = "dnd_enabled"
 INPUT_DND_START = "dnd_start"
 INPUT_DND_STOP = "dnd_stop"
+INPUT_CARPET_BOOST_ENABLED = "carpet_boost_enabled"
 
 STATE_MOPPING = "Mopping"
 STATE_UNKNWON = "Unknown"
@@ -463,6 +466,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             vol.Optional(INPUT_DND_STOP): cv.string,
         },
         MiroboVacuum.async_do_not_disturb.__name__,
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_SET_CARPET_BOOST,
+        {
+            vol.Required(INPUT_CARPET_BOOST_ENABLED): cv.boolean,
+        },
+        MiroboVacuum.async_set_carpet_boost.__name__,
     )
 
 
@@ -847,6 +858,17 @@ class MiroboVacuum(StateVacuumEntity):
                 )
             else:
                 _LOGGER.error("DnD stop time is not valid: (%s).", dnd_stop)
+
+    async def async_set_carpet_boost(self, carpet_boost_enabled):
+        """Enable or disable carpet boost function"""
+        if carpet_boost_enabled != "" and (
+            bool(carpet_boost_enabled) == True or bool(carpet_boost_enabled) == False
+        ):
+            await self._try_command(
+                "Unable to set DnD mode: %s",
+                self._vacuum.set_carpet_boost,
+                carpet_boost_enabled,
+            )
 
     async def async_set_audio_volume(self, volume):
         """Set audio volume"""

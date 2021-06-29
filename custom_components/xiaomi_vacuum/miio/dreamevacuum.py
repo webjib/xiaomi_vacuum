@@ -433,6 +433,13 @@ class DreameVacuum(MiotDevice):
         return self.start_sweeping_advanced(payload)
 
     @command()
+    def set_carpet_boost(self, carpet_boost_enabled) -> None:
+        """Enable or disable carpet boost."""
+        return self.set_property(
+            "property_carpet_boost", 1 if carpet_boost_enabled else 0
+        )
+
+    @command()
     def set_dnd(self, dnd_enabled) -> None:
         """Enable or disable do not disturb."""
         return self.set_property("property_dnd_enabled", dnd_enabled)

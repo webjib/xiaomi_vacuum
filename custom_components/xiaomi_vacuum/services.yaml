@@ -282,3 +282,19 @@ vacuum_do_not_disturb:
       required: false
       selector:
         text:
+
+vacuum_set_carpet_boost:
+  description: Enable/disable carpet boost functionallity.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    carpet_boost_enabled:
+      description: "Enable or disable carpet boost feature"
+      example: "false"
+      required: true
+      selector:
+        boolean:
