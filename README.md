@@ -103,7 +103,11 @@ It is also possible to specify the number of cleaning passes, fan speed, and wat
 ## Installing custom voice packs
 
 It is possible to install custom voice packs using `vacuum_install_voice_pack` service.  
-As a template for creating your own voice pack you can use the [default EN voice pack](http://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2009/voices/package/en.tar.gz)
+As a template for creating your own voice pack you can use the official packages:
+
+- [Dreame D9 official voice packages](https://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2009/voices/soundpackage.json)
+- [Dreame F9 official voice packages](https://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2008/voices/soundpackage.json)
+- [Dreame L10 Pro official voice packages](https://awsde0.fds.api.xiaomi.com/dreame-product/dreame.vacuum.p2029/voices/soundpackage.json)
 
 ### Example of install voice pack
 
