@@ -84,15 +84,15 @@ vacuum_set_water_level:
       domain: vacuum
   fields:
     water_level:
-      description: water level, 1:Low, 2:Medium, 3:High. Numbers are also accepted.
-      default: "Medium"
+      description: water level, 1:low, 2:medium, 3:high. Numbers are also accepted.
+      default: "medium"
       required: true
       selector:
         select:
           options:
-            - "Low"
-            - "Medium"
-            - "High"
+            - "low"
+            - "medium"
+            - "high"
 
 vacuum_install_voice_pack:
   description: Install official or custom voice pack.

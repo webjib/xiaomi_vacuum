@@ -1,5 +1,5 @@
 from typing import Final
-from .miio.dreamevacuum import (
+from .miio.dreame_const import (
     OperationStatus,
     VacuumStatus,
     VacuumSpeed,
@@ -104,27 +104,27 @@ INPUT_DND_START: Final = "dnd_start"
 INPUT_DND_STOP: Final = "dnd_stop"
 INPUT_CARPET_BOOST_ENABLED: Final = "carpet_boost_enabled"
 
-STATE_MOPPING: Final = "Mopping"
-STATE_UNKNWON: Final = "Unknown"
+STATE_MOPPING: Final = "mopping"
+STATE_UNKNWON: Final = "unknown"
 
-SPEED_SILENT: Final = "Silent"
-SPEED_STANDARD: Final = "Standard"
-SPEED_STRONG: Final = "Strong"
-SPEED_TURBO: Final = "Turbo"
+SPEED_SILENT: Final = "silent"
+SPEED_STANDARD: Final = "standard"
+SPEED_STRONG: Final = "strong"
+SPEED_TURBO: Final = "turbo"
 
-WATERBOX_PRESENT: Final = "Present"
-WATERBOX_REMOVED: Final = "Removed"
+WATERBOX_PRESENT: Final = "present"
+WATERBOX_REMOVED: Final = "removed"
 
-WATER_LEVEL_LOW: Final = "Low"
-WATER_LEVEL_MEDIUM: Final = "Medium"
-WATER_LEVEL_HIGHT: Final = "High"
+WATER_LEVEL_LOW: Final = "low"
+WATER_LEVEL_MEDIUM: Final = "medium"
+WATER_LEVEL_HIGHT: Final = "high"
 
-OPERATION_STATUS_COMPLETED: Final = "Completed"
-OPERATION_STATUS_AUTO_CLEAN: Final = "Autoclean"
-OPERATION_STATUS_CUSTOM_AREA_CLEAN: Final = "ZoneClean"
-OPERATION_STATUS_AREA_CLEAN: Final = "RoomClean"
-OPERATION_STATUS_SPOT_CLEAN: Final = "SpotClean"
-OPERATION_STATUS_FAST_MAPPING: Final = "FastMapping"
+OPERATION_STATUS_COMPLETED: Final = "completed"
+OPERATION_STATUS_AUTO_CLEAN: Final = "auto clean"
+OPERATION_STATUS_CUSTOM_AREA_CLEAN: Final = "zone clean"
+OPERATION_STATUS_AREA_CLEAN: Final = "room clean"
+OPERATION_STATUS_SPOT_CLEAN: Final = "spot clean"
+OPERATION_STATUS_FAST_MAPPING: Final = "fast mapping"
 
 OPERATION_IDLE_MODE: Final = "idle"
 OPERATION_PAUSE_AND_STOP_MODE: Final = "pause and stop"
@@ -207,7 +207,7 @@ SPEED_CODE_TO_NAME: Final = {
     VacuumSpeed.Unknown: STATE_UNKNWON,
     VacuumSpeed.Silent: SPEED_SILENT,
     VacuumSpeed.Standard: SPEED_STANDARD,
-    VacuumSpeed.strong: SPEED_STRONG,
+    VacuumSpeed.Strong: SPEED_STRONG,
     VacuumSpeed.Turbo: SPEED_TURBO,
 }
 
