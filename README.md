@@ -112,7 +112,7 @@ As a template for creating your own voice pack you can use the official packages
 ### Example of install voice pack
 
 The following service call will install my voice pack named `en-azure.tar.gz` that I hosted localy on my development machine.  
-In my experience if the `lang_id` is already available on your device, it will not download the pack again but only change the language to the already downloaded pack. So I used `US` instead of `EN`.
+Note: the default English pack with the `lang_id` of `EN` cannot be overwritten. You can use something else like `US` instead of `EN`.
 
 ```yaml
 service: xiaomi_vacuum.vacuum_install_voice_pack
