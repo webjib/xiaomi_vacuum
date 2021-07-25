@@ -5,7 +5,9 @@ This integration should also work for the following models:
 
 - Dreame Vacuum Robot F9 (dreame.vacuum.p2008)
 - Dreame Vacuum Robot L10 Pro (dreame.vacuum.p2029)
-
+- MOVA L600 Vacuum Robot (dreame.vacuum.p2157)
+  
+Table of contents:
 - [xiaomi_vacuum (Dreame D9) integration for Homeassistant](#xiaomi_vacuum-dreame-d9-integration-for-homeassistant)
   - [Room cleaning support](#room-cleaning-support)
     - [Example of cleaning schedule:](#example-of-cleaning-schedule)
