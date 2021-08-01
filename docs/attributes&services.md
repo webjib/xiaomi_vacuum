@@ -30,7 +30,7 @@
 - total_cleaning_time
 - total_cleaning_count
 - total_cleaning_area
-- water_level: high
+- water_level
 - water_level_list
 - clean_cloth_tip
 - serial_number
