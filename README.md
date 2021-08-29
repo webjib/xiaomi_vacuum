@@ -97,9 +97,9 @@ It is also possible to specify the number of cleaning passes, fan speed, and wat
     data:
       entity_id: vacuum.dreame_d9
       rooms: [[ 'A', 2, 4, 3][ 'B', 1, 2, 3]]
-      repeats: 2  >>> this will get override with this syntax
-      clean_mode: 2. >>> this will get override with this syntax
-      mop_mode: 2 >>> this will get override with this syntax
+      repeats: 2  >>> this will get ignored if per room repeats is specified
+      clean_mode: 2. >>> this will get ignored if per room clean_mode is specified
+      mop_mode: 2 >>> this will get ignored if per room mop_mode is specified
 ```
 
 ## Installing custom voice packs
