@@ -298,3 +298,19 @@ vacuum_set_carpet_boost:
       required: true
       selector:
         boolean:
+
+vacuum_set_multi_map:
+  description: Enable/disable multi map functionallity.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    multi_map_enabled:
+      description: "Enable or disable multi map feature"
+      example: "false"
+      required: true
+      selector:
+        boolean:

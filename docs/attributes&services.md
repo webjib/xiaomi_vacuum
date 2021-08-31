@@ -34,6 +34,7 @@
 - water_level_list
 - clean_cloth_tip
 - serial_number
+- multi_map_enabled
 - map_id_list<sup>1</sup>
 - room_list<sup>1</sup>
 
@@ -43,6 +44,7 @@
 - Xiaomi Vacuum: vacuum_reset_filter_life
 - Xiaomi Vacuum: vacuum_reset_main_brush_life
 - Xiaomi Vacuum: vacuum_reset_side_brush_life
+- Xiaomi Vacuum: vacuum_set_multi_map
 - Xiaomi Vacuum: vacuum_select_map<sup>1</sup>
 - Xiaomi Vacuum: vacuum_clean_room_by_id<sup>1</sup>
 - xiaomi Vacuum: vacuum_clean_zone

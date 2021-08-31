@@ -111,6 +111,10 @@ class DreameVacuumStatus(DeviceStatusContainer):
         return bool(self.data["property_carpet_boost"])
 
     @property
+    def multi_map_enabled(self) -> bool:
+        return bool(self.data["property_multi_map_enabled"])
+
+    @property
     def dnd_enabled(self) -> bool:
         return self.data["property_dnd_enabled"]
 
@@ -263,6 +267,13 @@ class DreameVacuum(MiotDevice):
         """Enable or disable carpet boost."""
         return self.set_property(
             "property_carpet_boost", 1 if carpet_boost_enabled else 0
+        )
+
+    @command()
+    def set_multi_map(self, multi_map_enabled) -> None:
+        """Enable or disable multi map feature."""
+        return self.set_property(
+            "property_multi_map_enabled", 1 if multi_map_enabled else 0
         )
 
     @command()

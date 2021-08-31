@@ -185,6 +185,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         MiroboVacuum.async_set_carpet_boost.__name__,
     )
 
+    platform.async_register_entity_service(
+        SERVICE_SET_MULTI_MAP,
+        {
+            vol.Required(INPUT_MULTI_MAP_ENABLED): cv.boolean,
+        },
+        MiroboVacuum.async_multi_map.__name__,
+    )
+
 
 class MiroboVacuum(StateVacuumEntity):
     """Representation of a Xiaomi Vacuum cleaner robot."""
@@ -236,6 +244,8 @@ class MiroboVacuum(StateVacuumEntity):
         self._dnd_enabled = None
         self._dnd_start_time = None
         self._dnd_stop_time = None
+
+        self._multi_map_enabled = None
 
         self._audio_volume = None
         self._audio_language = None
@@ -325,6 +335,7 @@ class MiroboVacuum(StateVacuumEntity):
                 ),
                 ATTR_ERROR: ERROR_CODE_TO_ERROR.get(self.vacuum_error, "Unknown"),
                 ATTR_CARPET_BOOST: self._carpet_boost,
+                ATTR_MULTI_MAP_ENABLED: self._multi_map_enabled,
                 ATTR_DND_ENABLED: self._dnd_enabled,
                 ATTR_DND_START_TIME: self._dnd_start_time,
                 ATTR_DND_STOP_TIME: self._dnd_stop_time,
@@ -541,6 +552,17 @@ class MiroboVacuum(StateVacuumEntity):
             "Unable to set water level: %s", self._vacuum.set_water_level, water_level
         )
 
+    async def async_multi_map(self, multi_map_enabled=""):
+        """Enable or Disable multi map feature"""
+        if multi_map_enabled != "" and (
+            bool(multi_map_enabled) == True or bool(multi_map_enabled) == False
+        ):
+            await self._try_command(
+                "Unable to set multi map: %s",
+                self._vacuum.set_multi_map,
+                multi_map_enabled,
+            )
+
     async def async_do_not_disturb(self, dnd_enabled="", dnd_start="", dnd_stop=""):
         """Set do not disturb function"""
         if dnd_enabled != "" and (
@@ -574,7 +596,7 @@ class MiroboVacuum(StateVacuumEntity):
             bool(carpet_boost_enabled) == True or bool(carpet_boost_enabled) == False
         ):
             await self._try_command(
-                "Unable to set DnD mode: %s",
+                "Unable to set carpet boost mode: %s",
                 self._vacuum.set_carpet_boost,
                 carpet_boost_enabled,
             )
@@ -656,6 +678,8 @@ class MiroboVacuum(StateVacuumEntity):
             self._schedule = state.schedule if state.schedule is not None else ""
 
             self._carpet_boost = state.carpet_boost
+
+            self._multi_map_enabled = state.multi_map_enabled
 
             self._dnd_enabled = state.dnd_enabled
             self._dnd_start_time = state.dnd_start_time

@@ -29,6 +29,7 @@ DreameD9Mapping = {
     "property_dnd_start_time": {"siid": 5, "piid": 2},
     "property_dnd_stop_time": {"siid": 5, "piid": 3},
     ## Map
+    "property_multi_map_enabled": {"siid": 6, "piid": 7},
     "action_req_map": {"siid": 6, "aiid": 1},
     "action_set_map": {"siid": 6, "aiid": 2},
     ## Audio
