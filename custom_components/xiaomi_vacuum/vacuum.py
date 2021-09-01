@@ -193,6 +193,15 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         MiroboVacuum.async_multi_map.__name__,
     )
 
+    platform.async_register_entity_service(
+        SERVICE_RENAME_MAP,
+        {
+            vol.Required(INPUT_MAP_ID): cv.string,
+            vol.Required(INPUT_MAP_NAME): cv.string,
+        },
+        MiroboVacuum.async_rename_map.__name__,
+    )
+
 
 class MiroboVacuum(StateVacuumEntity):
     """Representation of a Xiaomi Vacuum cleaner robot."""
@@ -561,6 +570,13 @@ class MiroboVacuum(StateVacuumEntity):
                 "Unable to set multi map: %s",
                 self._vacuum.set_multi_map,
                 multi_map_enabled,
+            )
+
+    async def async_rename_map(self, map_id="", map_name=""):
+        """Rename a map"""
+        if map_id != "" and map_name != "":
+            await self._try_command(
+                "Unable to rename map: %s", self._vacuum.rename_map, map_id, map_name
             )
 
     async def async_do_not_disturb(self, dnd_enabled="", dnd_start="", dnd_stop=""):

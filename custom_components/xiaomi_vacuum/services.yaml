@@ -314,3 +314,25 @@ vacuum_set_multi_map:
       required: true
       selector:
         boolean:
+
+vacuum_rename_map:
+  description: Rename a map.
+  target:
+    entity:
+      domain: vacuum
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: "vacuum.dreame_d9"
+    map_id:
+      description: "ID of the map"
+      example: "14"
+      required: true
+      selector:
+        text:
+    map_name:
+      description: "New name of the map"
+      example: "Ground Floor"
+      required: true
+      selector:
+        text:

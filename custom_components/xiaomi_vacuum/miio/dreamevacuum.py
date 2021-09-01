@@ -277,6 +277,18 @@ class DreameVacuum(MiotDevice):
         )
 
     @command()
+    def rename_map(self, map_id, map_name) -> None:
+        """Rename a map"""
+        payload = [
+            {
+                "piid": 4,
+                "value": '{"nrism":{%(id)s:{"name":%(name)s} } }'
+                % {"id": map_id, "name": map_name},
+            },
+        ]
+        return self.call_action("action_set_map", payload)
+
+    @command()
     def set_dnd(self, dnd_enabled) -> None:
         """Enable or disable do not disturb."""
         return self.set_property("property_dnd_enabled", dnd_enabled)
