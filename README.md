@@ -233,10 +233,16 @@ To retrieve the token:
 
 ## Lovelace Card
 
-This integration also works with [Vacuum Card](https://github.com/denysdovhan/vacuum-card) or smilar cards for vacuums, depending on which features they implement.
+Any Lovelace card for vacuum devices should work but the functionality may vary as different cards have different implementation of things like water level.
 
-Here is an example of modified version of vacuum-card:  
+One such card is [Vacuum Card](https://github.com/denysdovhan/vacuum-card), which can be modified to show water level selection.
+
+Here is an example:  
 ![Lovelace Card](docs/card.jpg)
+
+Of course it can also be done by combining basic cards like entity rows and so on:
+
+![image](https://user-images.githubusercontent.com/5418119/132858353-de4b6af2-0368-4f0d-99a8-10996a9e7299.png)
 
 ## Credit and Contribution
 
