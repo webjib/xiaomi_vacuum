@@ -222,7 +222,7 @@ To retrieve the token:
 
 - If using the original firmware follow the default integration <a href="https://www.home-assistant.io/integrations/vacuum.xiaomi_miio/#retrieving-the-access-token">instructions</a>.
 
-- If you have a rooted vacuum with Valetudo you can read the token from the device. It is saved in the following file:
+- If you have a rooted vacuum you can read the token from the device. It is saved in the following file:
   ```bash
   /data/config/miio/device.token
   ```
