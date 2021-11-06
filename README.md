@@ -96,7 +96,7 @@ It is also possible to specify the number of cleaning passes, fan speed, and wat
   - service: xiaomi_vacuum.vacuum_clean_room_by_id
     data:
       entity_id: vacuum.dreame_d9
-      rooms: [[ 'A', 2, 4, 3][ 'B', 1, 2, 3]]
+      rooms: [[ 'A', 2, 4, 3], [ 'B', 1, 2, 3]]
       repeats: 2  >>> this will get ignored if per room repeats is specified
       clean_mode: 2. >>> this will get ignored if per room clean_mode is specified
       mop_mode: 2 >>> this will get ignored if per room mop_mode is specified
