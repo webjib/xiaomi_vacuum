@@ -2,11 +2,7 @@ import logging
 from enum import Enum
 from functools import partial
 from typing import Any, Dict, Union
-
-import click
-
-from .click_common import EnumType, LiteralParamType, command
-from .device import Device, DeviceStatus  # noqa: F401
+from .device import Device  # noqa: F401
 from .exceptions import DeviceException
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,10 +62,6 @@ class MiotDevice(Device):
             properties, property_getter="get_properties", max_properties=max_properties
         )
 
-    @command(
-        click.argument("name", type=str),
-        click.argument("params", type=LiteralParamType(), required=False),
-    )
     def call_action(self, name: str, params=None):
         """Call an action by a name in the mapping."""
         if name not in self.mapping:
@@ -82,11 +74,6 @@ class MiotDevice(Device):
 
         return self.call_action_by(action["siid"], action["aiid"], params)
 
-    @command(
-        click.argument("siid", type=int),
-        click.argument("aiid", type=int),
-        click.argument("params", type=LiteralParamType(), required=False),
-    )
     def call_action_by(self, siid, aiid, params=None):
         """Call an action."""
         if params is None:
@@ -100,24 +87,12 @@ class MiotDevice(Device):
 
         return self.send("action", payload)
 
-    @command(
-        click.argument("siid", type=int),
-        click.argument("piid", type=int),
-    )
     def get_property_by(self, siid: int, piid: int):
         """Get a single property (siid/piid)."""
         return self.send(
             "get_properties", [{"did": f"{siid}-{piid}", "siid": siid, "piid": piid}]
         )
 
-    @command(
-        click.argument("siid", type=int),
-        click.argument("piid", type=int),
-        click.argument("value"),
-        click.argument(
-            "value_type", type=EnumType(MiotValueType), required=False, default=None
-        ),
-    )
     def set_property_by(
         self,
         siid: int,

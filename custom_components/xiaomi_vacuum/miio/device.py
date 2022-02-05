@@ -3,10 +3,6 @@ import logging
 from enum import Enum
 from pprint import pformat as pf
 from typing import Any, Optional  # noqa: F401
-
-import click
-
-from .click_common import DeviceGroupMeta, LiteralParamType, command, format_output
 from .exceptions import DeviceInfoUnavailableException, PayloadDecodeException
 from .miioprotocol import MiIOProtocol
 
@@ -183,10 +179,6 @@ class Device(metaclass=DeviceGroupMeta):
         """Send initial handshake to the device."""
         return self._protocol.send_handshake()
 
-    @command(
-        click.argument("command", type=str, required=True),
-        click.argument("parameters", type=LiteralParamType(), required=False),
-    )
     def raw_command(self, command, parameters):
         """Send a raw command to the device. This is mostly useful when trying out
         commands which are not implemented by a given device instance.
@@ -196,14 +188,6 @@ class Device(metaclass=DeviceGroupMeta):
         """
         return self.send(command, parameters)
 
-    @command(
-        default_output=format_output(
-            "",
-            "Model: {result.model}\n"
-            "Hardware version: {result.hardware_version}\n"
-            "Firmware version: {result.firmware_version}\n",
-        )
-    )
     def info(self) -> DeviceInfo:
         """Get miIO protocol information from the device.
 
@@ -283,98 +267,6 @@ class Device(metaclass=DeviceGroupMeta):
             )
 
         return values
-
-    @command(
-        click.argument("properties", type=str, nargs=-1, required=True),
-    )
-    def test_properties(self, properties):
-        """Helper to test device properties."""
-
-        def ok(x):
-            click.echo(click.style(x, fg="green", bold=True))
-
-        def fail(x):
-            click.echo(click.style(x, fg="red", bold=True))
-
-        try:
-            model = self.info().model
-        except Exception as ex:
-            _LOGGER.warning("Unable to obtain device model: %s", ex)
-            model = "<unavailable>"
-
-        click.echo(f"Testing properties {properties} for {model}")
-        valid_properties = {}
-        max_property_len = max([len(p) for p in properties])
-        for property in properties:
-            try:
-                click.echo(f"Testing {property:{max_property_len+2}} ", nl=False)
-                value = self.get_properties([property])
-                # Handle list responses
-                if isinstance(value, list):
-                    # unwrap single-element lists
-                    if len(value) == 1:
-                        value = value.pop()
-                    # report on unexpected multi-element lists
-                    elif len(value) > 1:
-                        _LOGGER.error("Got an array as response: %s", value)
-                    # otherwise we received an empty list, which we consider here as None
-                    else:
-                        value = None
-
-                if value is None:
-                    fail("None")
-                else:
-                    valid_properties[property] = value
-                    ok(f"{repr(value)} {type(value)}")
-            except Exception as ex:
-                _LOGGER.warning("Unable to request %s: %s", property, ex)
-
-        click.echo(
-            f"Found {len(valid_properties)} valid properties, testing max_properties.."
-        )
-
-        props_to_test = list(valid_properties.keys())
-        max_properties = -1
-        while len(props_to_test) > 1:
-            try:
-                click.echo(
-                    f"Testing {len(props_to_test)} properties at once ({' '.join(props_to_test)}): ",
-                    nl=False,
-                )
-                resp = self.get_properties(props_to_test)
-
-                if len(resp) == len(props_to_test):
-                    max_properties = len(props_to_test)
-                    ok(f"OK for {max_properties} properties")
-                    break
-                else:
-                    removed_property = props_to_test.pop()
-                    fail(
-                        f"Got different amount of properties ({len(props_to_test)}) than requested ({len(resp)}), removing {removed_property}"
-                    )
-
-            except Exception as ex:
-                removed_property = props_to_test.pop()
-                msg = f"Unable to request properties: {ex} - removing {removed_property} for next try"
-                _LOGGER.warning(msg)
-                fail(ex)
-
-        non_empty_properties = {
-            k: v for k, v in valid_properties.items() if v is not None
-        }
-
-        click.echo(
-            click.style("\nPlease copy the results below to your report", bold=True)
-        )
-        click.echo("### Results ###")
-        click.echo(f"Model: {model}")
-        _LOGGER.debug(f"All responsive properties:\n{pf(valid_properties)}")
-        click.echo(f"Total responsives: {len(valid_properties)}")
-        click.echo(f"Total non-empty: {len(non_empty_properties)}")
-        click.echo(f"All non-empty properties:\n{pf(non_empty_properties)}")
-        click.echo(f"Max properties: {max_properties}")
-
-        return "Done"
 
     def __repr__(self):
         return f"<{self.__class__.__name__ }: {self.ip} (token: {self.token})>"

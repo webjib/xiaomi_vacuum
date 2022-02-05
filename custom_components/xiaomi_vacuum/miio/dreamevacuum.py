@@ -1,8 +1,6 @@
 import logging
 from dataclasses import dataclass, field
 
-import click
-from .click_common import command
 from .miot_device import DeviceStatus as DeviceStatusContainer
 from .miot_device import MiotDevice, MiotMapping
 from .dreame_const import *
@@ -206,77 +204,63 @@ class DreameVacuum(MiotDevice):
             }
         )
 
-    @command(click.argument("speed", type=int))
     def set_fan_speed(self, speed):
         """Set vacuum cleaning mode."""
         return self.set_property("property_cleaning_mode", speed)
 
-    @command()
     def return_home(self) -> None:
         """Return home for charging."""
         return self.call_action("action_start_charging")
 
-    @command()
     def start_sweep(self) -> None:
         """Start cleaning."""
         return self.call_action("action_start_sweeping")
 
-    @command()
     def pause_sweeping(self) -> None:
         """Pause cleaning."""
         return self.call_action("action_pause_sweeping")
 
-    @command()
     def reset_brush_life(self) -> None:
         """Reset main brush's life."""
         return self.call_action("action_reset_main_brush_life")
 
-    @command()
     def reset_filter_life(self) -> None:
         """Reset filter's life."""
         return self.call_action("action_reset_filter_life")
 
-    @command()
     def reset_side_brush_life(self) -> None:
         """Reset side brush's life."""
         return self.call_action("action_reset_side_brush_life")
 
-    @command()
     def start_sweeping_advanced(self, params) -> None:
         """Start cleaning (advanced). Specify cleaning mode like room, zone,..."""
         return self.call_action("action_start_sweeping_advanced", params)
 
-    @command()
     def stop_sweeping(self) -> None:
         """Stop cleaning."""
         return self.call_action("action_stop_sweeping")
 
-    @command()
     def set_map(self, params) -> None:
         """Set map related features like: switching to another map, setting restricted area, etc."""
         return self.call_action("action_set_map", params)
 
-    @command()
     def fast_map(self) -> None:
         """Start fast mapping."""
         payload = [{"piid": 1, "value": 21}]
         return self.start_sweeping_advanced(payload)
 
-    @command()
     def set_carpet_boost(self, carpet_boost_enabled) -> None:
         """Enable or disable carpet boost."""
         return self.set_property(
             "property_carpet_boost", 1 if carpet_boost_enabled else 0
         )
 
-    @command()
     def set_multi_map(self, multi_map_enabled) -> None:
         """Enable or disable multi map feature."""
         return self.set_property(
             "property_multi_map_enabled", 1 if multi_map_enabled else 0
         )
 
-    @command()
     def rename_map(self, map_id, map_name) -> None:
         """Rename a map"""
         payload = [
@@ -288,22 +272,18 @@ class DreameVacuum(MiotDevice):
         ]
         return self.call_action("action_set_map", payload)
 
-    @command()
     def set_dnd(self, dnd_enabled) -> None:
         """Enable or disable do not disturb."""
         return self.set_property("property_dnd_enabled", dnd_enabled)
 
-    @command()
     def set_dnd_start(self, dnd_start) -> None:
         """set start time for do not disturb function."""
         return self.set_property("property_dnd_start_time", dnd_start)
 
-    @command()
     def set_dnd_stop(self, dnd_stop) -> None:
         """set end time for do not disturb function."""
         return self.set_property("property_dnd_stop_time", dnd_stop)
 
-    @command(click.argument("coords", type=str), click.argument("repeats", type=int))
     def zone_cleanup(self, coords, repeats) -> None:
         """Start zone cleaning."""
         payload = [
@@ -317,7 +297,6 @@ class DreameVacuum(MiotDevice):
         ]
         return self.start_sweeping_advanced(payload)
 
-    @command()
     def room_cleanup_by_id(self, rooms, repeats, clean_mode, mop_mode) -> None:
         """Start room-id cleaning."""
         cleanlist = []
@@ -346,11 +325,6 @@ class DreameVacuum(MiotDevice):
         ]
         return self.start_sweeping_advanced(payload)
 
-    @command(
-        click.argument("walls", type=str),
-        click.argument("zones", type=str),
-        click.argument("mops", type=str),
-    )
     def set_restricted_zone(self, walls, zones, mops) -> None:
         """set restricted/ no-mop zone"""
         value = '{"vw":{"line":[%(walls)s],"rect":[%(zones)s],"mop":[%(mops)s]}}' % {
@@ -361,7 +335,6 @@ class DreameVacuum(MiotDevice):
         payload = [{"piid": 4, "value": value}]
         return self.set_map(payload)
 
-    @command()
     def remote_control_step(self, rotation, velocity) -> None:
         """
         Move robot manually one time.
@@ -374,12 +347,10 @@ class DreameVacuum(MiotDevice):
         }
         return self.set_property("property_remote_control_step", value)
 
-    @command()
     def request_map(self, params) -> None:
         # TODO find out the parameters
         return self.call_action("action_req_map", params)
 
-    @command()
     def select_map(self, map_id) -> None:
         """Switch to another map."""
         payload = [
@@ -390,17 +361,14 @@ class DreameVacuum(MiotDevice):
         ]
         return self.set_map(payload)
 
-    @command(click.argument("water", type=int))
     def set_water_level(self, water):
         """Set water level"""
         return self.set_property("property_water_level", water)
 
-    @command()
     def locate(self) -> None:
         """Locate vacuum robot."""
         return self.call_action("action_locate")
 
-    @command()
     def install_voice_pack(self, lang_id: str, url: str, md5: str, size: int) -> None:
         """Install given voice pack."""
         value = (
@@ -409,17 +377,14 @@ class DreameVacuum(MiotDevice):
         )
         self.set_property("property_voice", value)
 
-    @command(click.argument("volume", type=int))
     def set_audio_volume(self, volume):
         """Set voice audio volume"""
         return self.set_property("property_audio_volume", volume)
 
-    @command()
     def test_sound(self) -> None:
         """Plays a confirmation sound to check the volume"""
         return self.call_action("action_test_sound")
 
-    @command(click.argument("time", type=int))
     def set_cloth_cleaning_tip(self, delay):
         """Set reminder delay for cleaning mop, 0 to disable the tip"""
         return self.set_property("property_clean_cloth_tip", delay)
