@@ -121,7 +121,7 @@ class DeviceStatus:
         return s
 
 
-class Device(metaclass=DeviceGroupMeta):
+class Device:
     """Base class for all device implementations.
 
     This is the main class providing the basic protocol handling for devices using the
