@@ -2,7 +2,7 @@ import logging
 from enum import Enum
 from functools import partial
 from typing import Any, Dict, Union
-from .device import Device  # noqa: F401
+from .device import Device, DeviceStatus  # noqa: F401
 from .exceptions import DeviceException
 
 _LOGGER = logging.getLogger(__name__)
