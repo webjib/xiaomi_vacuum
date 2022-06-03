@@ -129,6 +129,7 @@ OPERATION_STATUS_CUSTOM_AREA_CLEAN: Final = "zone clean"
 OPERATION_STATUS_AREA_CLEAN: Final = "room clean"
 OPERATION_STATUS_SPOT_CLEAN: Final = "spot clean"
 OPERATION_STATUS_FAST_MAPPING: Final = "fast mapping"
+OPERATION_STATUS_SUSPENDED: Final = "suspended"
 
 OPERATION_IDLE_MODE: Final = "idle"
 OPERATION_PAUSE_AND_STOP_MODE: Final = "pause and stop"
@@ -236,6 +237,7 @@ OPERATION_STATUS_CODE_TO_NAME: Final = {
     OperationStatus.OperationAreaClean: OPERATION_STATUS_AREA_CLEAN,
     OperationStatus.OperationSpotClean: OPERATION_STATUS_SPOT_CLEAN,
     OperationStatus.OperationFastMapping: OPERATION_STATUS_FAST_MAPPING,
+    OperationStatus.OperationSuspended: OPERATION_STATUS_SUSPENDED,
 }
 
 OPERATING_MODE_CODE_TO_NAME: Final = {
