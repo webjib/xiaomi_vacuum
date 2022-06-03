@@ -148,6 +148,7 @@ class OperationStatus(IntEnum):
     OperationAreaClean = 3
     OperationSpotClean = 4
     OperationFastMapping = 5
+    OperationSuspended = 8
 
 
 class OperatingMode(IntEnum):
